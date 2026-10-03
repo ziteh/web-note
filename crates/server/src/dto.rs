@@ -121,6 +121,11 @@ pub struct AssetUploaded {
 }
 
 #[derive(Serialize, ToSchema)]
+pub struct OrphanAssetsTrashed {
+    pub count: usize,
+}
+
+#[derive(Serialize, ToSchema)]
 pub struct TrashItem {
     pub key: String,
     pub notebook: String,

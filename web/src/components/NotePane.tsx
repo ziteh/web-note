@@ -1,9 +1,10 @@
-import { useNavigate } from "@solidjs/router";
+import { A, useNavigate } from "@solidjs/router";
 import { useQueryClient } from "@tanstack/solid-query";
 import {
   createEffect,
   createMemo,
   createSignal,
+  For,
   onCleanup,
   onMount,
   Show,
@@ -12,6 +13,7 @@ import { toast } from "solid-sonner";
 import { api, type Note, unwrap } from "~/api/client";
 import {
   useAllNotes,
+  useBacklinks,
   useNote,
   useNotebooks,
   useRefreshNotes,
@@ -19,6 +21,7 @@ import {
 import { createExtensions } from "~/editor/extensions";
 import { EditorSession, type SaveStatus } from "~/editor/session";
 import { lookupChanged } from "~/editor/wikilink";
+import { noteTitle } from "~/lib/note";
 import TagEditor from "./TagEditor";
 import {
   AlertDialog,
@@ -52,6 +55,7 @@ export default function NotePane(props: Props) {
   const note = useNote(() => props.id);
   const allNotes = useAllNotes();
   const notebooks = useNotebooks();
+  const backlinks = useBacklinks(() => props.id);
   const client = useQueryClient();
   const refresh = useRefreshNotes();
   const navigate = useNavigate();
@@ -239,6 +243,31 @@ export default function NotePane(props: Props) {
         class="min-h-0 flex-1 overflow-hidden"
         classList={{ hidden: props.id === undefined || note.isError }}
       />
+
+      <Show when={backlinks.data?.length}>
+        <details class="border-t p-2 text-sm">
+          <summary class="cursor-pointer text-muted-foreground">
+            反向連結（{backlinks.data?.length}）
+          </summary>
+          <ul class="mt-1 flex flex-col">
+            <For each={backlinks.data}>
+              {(link) => (
+                <li>
+                  <A
+                    href={`/n/${link.id}${location.search}`}
+                    class="block truncate rounded px-2 py-1 hover:bg-accent"
+                  >
+                    {noteTitle(link)}
+                    <span class="ml-2 text-xs text-muted-foreground">
+                      {link.path}
+                    </span>
+                  </A>
+                </li>
+              )}
+            </For>
+          </ul>
+        </details>
+      </Show>
 
       <AlertDialog
         open={backlinkCount() !== undefined}

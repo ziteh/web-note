@@ -7,6 +7,7 @@ export type NoteMeta = components["schemas"]["NoteMeta"];
 export type Note = components["schemas"]["Note"];
 export type Notebook = components["schemas"]["Notebook"];
 export type Tag = components["schemas"]["Tag"];
+export type TrashItem = components["schemas"]["TrashItem"];
 export type Status = components["schemas"]["Status"];
 
 export class ApiError extends Error {

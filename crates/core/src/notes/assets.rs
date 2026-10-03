@@ -1,8 +1,9 @@
 use std::fs;
 
-use super::{ASSETS_DIR, Notes, io_err};
+use super::{ASSETS_DIR, Notes, TRASH_DIR, io_err};
 use crate::{
     error::{Error, Result},
+    index,
     store::atomic_write,
 };
 
@@ -55,6 +56,39 @@ impl Notes {
             atomic_write(&path, bytes)?;
         }
         Ok(name)
+    }
+
+    /// Assets that no note references, in the index or in the trash.
+    pub fn orphan_assets(&self) -> Result<Vec<String>> {
+        let mut texts = index::bodies(&self.conn())?;
+        for (_, path) in self.trash_files()? {
+            texts.push(fs::read_to_string(&path).map_err(|e| io_err(&path, e))?);
+        }
+
+        let dir = self.root.join(ASSETS_DIR);
+        let mut orphans = Vec::new();
+        for entry in fs::read_dir(&dir).map_err(|e| io_err(&dir, e))? {
+            let name = entry.map_err(|e| io_err(&dir, e))?.file_name();
+            let name = name.to_string_lossy().into_owned();
+            if !texts.iter().any(|t| t.contains(&name)) {
+                orphans.push(name);
+            }
+        }
+        orphans.sort();
+        Ok(orphans)
+    }
+
+    /// Moves orphan assets into the trash instead of deleting them.
+    pub fn trash_orphan_assets(&self) -> Result<usize> {
+        let orphans = self.orphan_assets()?;
+        let target_dir = self.root.join(TRASH_DIR).join(ASSETS_DIR);
+        fs::create_dir_all(&target_dir).map_err(|e| io_err(&target_dir, e))?;
+        for name in &orphans {
+            let target = target_dir.join(name);
+            fs::rename(self.root.join(ASSETS_DIR).join(name), &target)
+                .map_err(|e| io_err(&target, e))?;
+        }
+        Ok(orphans.len())
     }
 
     /// Returns the bytes and content type of an asset.

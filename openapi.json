@@ -60,6 +60,45 @@
         }
       }
     },
+    "/api/assets/orphans": {
+      "get": {
+        "tags": ["assets"],
+        "summary": "Assets that no note references, including notes in the trash.",
+        "operationId": "list_orphans",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assets/orphans/trash": {
+      "post": {
+        "tags": ["assets"],
+        "summary": "Moves orphan assets to the trash rather than deleting them.",
+        "operationId": "trash_orphans",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrphanAssetsTrashed"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/assets/{name}": {
       "get": {
         "tags": ["assets"],
@@ -863,6 +902,16 @@
         "properties": {
           "name": {
             "type": "string"
+          }
+        }
+      },
+      "OrphanAssetsTrashed": {
+        "type": "object",
+        "required": ["count"],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "minimum": 0
           }
         }
       },

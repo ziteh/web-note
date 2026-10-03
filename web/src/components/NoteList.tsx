@@ -1,4 +1,5 @@
 import { A, useNavigate } from "@solidjs/router";
+import { useQueryClient } from "@tanstack/solid-query";
 import { createEffect, createSignal, For, on, Show } from "solid-js";
 import { toast } from "solid-sonner";
 import type { NoteMeta } from "~/api/client";
@@ -46,6 +47,7 @@ export default function NoteList(props: Props) {
   const status = useStatus();
   const navigate = useNavigate();
   const refresh = useRefreshNotes();
+  const client = useQueryClient();
   const [query, setQuery] = createSignal(filters().q ?? "");
 
   createEffect(
@@ -76,6 +78,15 @@ export default function NoteList(props: Props) {
       );
       await refresh();
       navigate(`/n/${created.meta.id}${location.search}`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    }
+  };
+
+  const dismissDuplicates = async () => {
+    try {
+      await unwrap(api.POST("/api/system/duplicates/dismiss"));
+      await client.invalidateQueries({ queryKey: ["status"] });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : String(e));
     }
@@ -127,6 +138,21 @@ export default function NoteList(props: Props) {
       </div>
 
       <ul class="min-h-0 flex-1 overflow-y-auto">
+        <Show when={status.data?.duplicates.length}>
+          <li class="flex flex-col gap-2 border-b bg-accent p-3 text-sm">
+            <div class="font-medium">
+              發現重複的筆記 id，已為較新的檔案重新指派
+            </div>
+            <ul class="text-xs text-muted-foreground">
+              <For each={status.data?.duplicates}>
+                {(d) => <li class="truncate">{d.path}</li>}
+              </For>
+            </ul>
+            <Button size="sm" variant="outline" onClick={dismissDuplicates}>
+              知道了
+            </Button>
+          </li>
+        </Show>
         <For each={status.data?.errors}>
           {(e) => (
             <li class="border-b p-3 text-sm text-destructive">

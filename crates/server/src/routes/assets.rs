@@ -11,7 +11,7 @@ use super::run;
 use crate::{
     AppState,
     api_error::{ApiError, ErrorBody},
-    dto::AssetUploaded,
+    dto::{AssetUploaded, OrphanAssetsTrashed},
 };
 
 const TAG: &str = "assets";
@@ -20,6 +20,8 @@ const NOSNIFF: (HeaderName, &str) = (header::X_CONTENT_TYPE_OPTIONS, "nosniff");
 pub fn router(body_limit: usize) -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(upload_asset))
+        .routes(routes!(list_orphans))
+        .routes(routes!(trash_orphans))
         .layer(DefaultBodyLimit::max(body_limit.saturating_add(1)))
         .routes(routes!(get_asset))
 }
@@ -56,4 +58,17 @@ async fn get_asset(
 ) -> Result<impl IntoResponse, ApiError> {
     let (bytes, content_type) = run(&s, move |n| n.read_asset(&name)).await?;
     Ok(([(header::CONTENT_TYPE, content_type)], [NOSNIFF], bytes))
+}
+
+/// Assets that no note references, including notes in the trash.
+#[utoipa::path(get, path = "/api/assets/orphans", tag = TAG, responses((status = 200, body = Vec<String>)))]
+async fn list_orphans(State(s): State<AppState>) -> Result<Json<Vec<String>>, ApiError> {
+    Ok(Json(run(&s, |n| n.orphan_assets()).await?))
+}
+
+/// Moves orphan assets to the trash rather than deleting them.
+#[utoipa::path(post, path = "/api/assets/orphans/trash", tag = TAG, responses((status = 200, body = OrphanAssetsTrashed)))]
+async fn trash_orphans(State(s): State<AppState>) -> Result<Json<OrphanAssetsTrashed>, ApiError> {
+    let count = run(&s, |n| n.trash_orphan_assets()).await?;
+    Ok(Json(OrphanAssetsTrashed { count }))
 }

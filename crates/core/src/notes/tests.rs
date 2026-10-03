@@ -341,3 +341,41 @@ fn reopen_reuses_index_and_sees_files() {
         Some("Persist")
     );
 }
+
+#[test]
+fn orphan_assets_are_found_and_moved_to_trash() {
+    let (dir, notes) = open();
+    let used = notes.add_asset(PNG).unwrap();
+    let in_trash = notes.add_asset(b"GIF89a-trashed").unwrap();
+    let orphan = notes.add_asset(b"\xFF\xD8\xFForphan").unwrap();
+
+    notes
+        .create(
+            DEFAULT_NOTEBOOK,
+            &format!("# A\n\n![](../.assets/{used})\n"),
+            &[],
+        )
+        .unwrap();
+    let trashed = notes
+        .create(
+            DEFAULT_NOTEBOOK,
+            &format!("# B\n\n![](../.assets/{in_trash})\n"),
+            &[],
+        )
+        .unwrap();
+    notes.delete(&trashed.meta.id).unwrap();
+
+    assert_eq!(notes.orphan_assets().unwrap(), vec![orphan.clone()]);
+    assert_eq!(notes.trash_orphan_assets().unwrap(), 1);
+    assert!(notes.orphan_assets().unwrap().is_empty());
+    assert!(!dir.path().join(ASSETS_DIR).join(&orphan).exists());
+    assert!(
+        dir.path()
+            .join(TRASH_DIR)
+            .join(ASSETS_DIR)
+            .join(&orphan)
+            .exists()
+    );
+    assert!(notes.read_asset(&used).is_ok());
+    assert_eq!(notes.trash().unwrap().len(), 1);
+}

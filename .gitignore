@@ -16,6 +16,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # Misc
+/Notes/
 *.db
 *.local
 *.local.*

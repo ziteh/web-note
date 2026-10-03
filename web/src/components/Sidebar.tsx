@@ -1,3 +1,4 @@
+import { A } from "@solidjs/router";
 import { For, Show } from "solid-js";
 import { useNotebooks, useStatus, useTags } from "~/api/queries";
 import { useFilters } from "~/lib/filters";
@@ -63,6 +64,13 @@ export default function Sidebar(props: { onPick?: () => void }) {
           )}
         </For>
       </section>
+
+      <A
+        href="/trash"
+        class="mt-auto rounded-md px-4 py-2 text-sm hover:bg-accent"
+      >
+        垃圾桶
+      </A>
 
       <Show when={status.data?.errors.length}>
         <p class="px-2 text-xs text-destructive">

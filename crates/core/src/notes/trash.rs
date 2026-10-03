@@ -112,7 +112,7 @@ impl Notes {
     }
 
     /// (notebook, path) of every trashed note file.
-    fn trash_files(&self) -> Result<Vec<(String, PathBuf)>> {
+    pub(super) fn trash_files(&self) -> Result<Vec<(String, PathBuf)>> {
         let trash = self.root.join(TRASH_DIR);
         let mut files = Vec::new();
         for nb in fs::read_dir(&trash).map_err(|e| io_err(&trash, e))? {

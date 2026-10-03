@@ -211,6 +211,15 @@ pub fn ids_with_tag(conn: &Connection, tag: &str) -> Result<Vec<String>> {
     Ok(rows)
 }
 
+/// Full text of every indexed note body.
+pub fn bodies(conn: &Connection) -> Result<Vec<String>> {
+    let rows = conn
+        .prepare("SELECT body FROM notes_fts")?
+        .query_map([], |r| r.get(0))?
+        .collect::<rusqlite::Result<_>>()?;
+    Ok(rows)
+}
+
 /// Files that failed to load during the last reconcile, as (path, message).
 pub fn errors(conn: &Connection) -> Result<Vec<(String, String)>> {
     let rows = conn

@@ -29,6 +29,34 @@ export function useAllNotes() {
   }));
 }
 
+export function useBacklinks(id: Accessor<string | undefined>) {
+  return createQuery(() => ({
+    queryKey: ["notes", "backlinks", id()],
+    enabled: id() !== undefined,
+    queryFn: () =>
+      unwrap(
+        api.GET("/api/notes/{id}/backlinks", {
+          // biome-ignore lint/style/noNonNullAssertion: guarded by `enabled`
+          params: { path: { id: id()! } },
+        }),
+      ),
+  }));
+}
+
+export function useTrash() {
+  return createQuery(() => ({
+    queryKey: ["trash"],
+    queryFn: () => unwrap(api.GET("/api/trash")),
+  }));
+}
+
+export function useOrphanAssets() {
+  return createQuery(() => ({
+    queryKey: ["orphan-assets"],
+    queryFn: () => unwrap(api.GET("/api/assets/orphans")),
+  }));
+}
+
 export function useNote(id: Accessor<string | undefined>) {
   return createQuery(() => ({
     queryKey: ["note", id()],
