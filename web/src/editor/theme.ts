@@ -68,7 +68,7 @@ const base = EditorView.theme({
   ".cm-content": { padding: "1rem" },
   ".cm-selectionBackground, &.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, ::selection":
     { backgroundColor: "hsl(var(--muted-foreground) / 0.3)" },
-  ".cm-selectionLayer": { zIndex: "150 !important" },
+  ".cm-selectionLayer": { zIndex: "150 !important", pointerEvents: "none" },
   ".cm-cursor, .cm-dropCursor": {
     borderLeftColor: "hsl(var(--foreground))",
   },
