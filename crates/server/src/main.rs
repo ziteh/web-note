@@ -6,14 +6,16 @@ use web_note_core::Notes;
 
 #[derive(Parser)]
 struct Args {
+    /// The directory to store notes in.
     #[arg(long, env = "NOTES_DIR", default_value = "Notes")]
     notes_dir: PathBuf,
     #[arg(long, env = "BIND", default_value = "127.0.0.1")]
     bind: IpAddr,
     #[arg(long, env = "PORT", default_value_t = 5393)]
     port: u16,
-    #[arg(long, env = "MAX_ASSET_BYTES", default_value_t = 10 * 1024 * 1024)]
-    max_asset_bytes: u64,
+    /// The maximum size of an asset in kibibyte (1024 bytes).
+    #[arg(long, env = "MAX_ASSET_KIB", default_value_t = 10 * 1024)]
+    max_asset_kib: u64,
     /// Print the OpenAPI spec and exit.
     #[arg(long)]
     openapi: bool,
@@ -27,7 +29,7 @@ async fn main() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    let notes = Notes::open(&args.notes_dir, args.max_asset_bytes)
+    let notes = Notes::open(&args.notes_dir, args.max_asset_kib * 1024)
         .context("failed to open notes directory")?;
     let notes = Arc::new(notes);
 
