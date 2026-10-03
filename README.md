@@ -56,6 +56,9 @@ cargo run -p web-note-server --features swagger
 pnpm --dir web install
 pnpm --dir web dev
 
+# Test
+cargo test
+
 # Formatter & linter
 cargo fmt
 cargo clippy
@@ -77,6 +80,16 @@ Release build:
 pnpm --dir web build
 cargo build --release -p web-note-server
 ```
+
+Cross-compile a statically linked Linux x86_64 binary (musl) with [cargo-zigbuild](https://github.com/rust-cross/cargo-zigbuild). Requires `zig`, which is needed to build the bundled SQLite:
+
+```sh
+rustup target add x86_64-unknown-linux-musl
+pnpm --dir web build
+cargo zigbuild --release -p web-note-server --target x86_64-unknown-linux-musl
+```
+
+The output is `target/x86_64-unknown-linux-musl/release/web-note-server`. It has no glibc dependency, so it can be copied to and run on any Linux x86_64 host.
 
 ## Tech Stack
 
