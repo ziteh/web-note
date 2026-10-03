@@ -5,6 +5,7 @@ use clap::Parser;
 use web_note_core::Notes;
 
 #[derive(Parser)]
+#[command(version)]
 struct Args {
     /// The directory to store notes in.
     #[arg(long, env = "NOTES_DIR", default_value = "Notes")]
