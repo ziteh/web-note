@@ -7,6 +7,8 @@ use rust_embed::RustEmbed;
 const INDEX: &str = "index.html";
 const HASHED_DIR: &str = "assets/";
 const API_PREFIX: &str = "api/";
+const BROTLI_EXT: &str = ".br";
+const IMMUTABLE: &str = "public, max-age=31536000, immutable";
 
 /// The built frontend. Run the web build first; a missing folder only means
 /// nothing is served.
@@ -22,6 +24,26 @@ pub async fn serve(uri: Uri) -> Response {
         return StatusCode::NOT_FOUND.into_response();
     }
 
+    // Hashed files are only embedded brotli-compressed.
+    if path.starts_with(HASHED_DIR)
+        && let Some(file) = Frontend::get(&format!("{path}{BROTLI_EXT}"))
+    {
+        return (
+            [
+                (
+                    header::CONTENT_TYPE,
+                    mime_guess::from_path(path)
+                        .first_or_octet_stream()
+                        .to_string(),
+                ),
+                (header::CONTENT_ENCODING, "br".to_string()),
+                (header::CACHE_CONTROL, IMMUTABLE.to_string()),
+            ],
+            file.data,
+        )
+            .into_response();
+    }
+
     let (file, name) = match Frontend::get(path) {
         Some(file) if !path.is_empty() => (file, path),
         _ => match Frontend::get(INDEX) {
@@ -32,7 +54,7 @@ pub async fn serve(uri: Uri) -> Response {
 
     // Files under the hashed directory change name when their content does.
     let cache = if name.starts_with(HASHED_DIR) {
-        "public, max-age=31536000, immutable"
+        IMMUTABLE
     } else {
         "no-cache"
     };

@@ -1,10 +1,10 @@
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
-import { languages } from "@codemirror/language-data";
 import type { Extension } from "@codemirror/state";
 import { drawSelection, EditorView, keymap } from "@codemirror/view";
 import { codeBackground } from "./codebackground";
 import { imageSupport } from "./image";
+import { codeLanguages } from "./languages";
 import { taskCheckboxes } from "./task";
 import { faintMarks, theme } from "./theme";
 import { type NoteLookup, wikilinkCompletion, wikilinks } from "./wikilink";
@@ -23,7 +23,7 @@ export function createExtensions(options: Options): Extension[] {
     keymap.of([...defaultKeymap, ...historyKeymap]),
     markdown({
       base: markdownLanguage,
-      codeLanguages: languages,
+      codeLanguages,
       extensions: { props: [faintMarks] },
     }),
     theme,
