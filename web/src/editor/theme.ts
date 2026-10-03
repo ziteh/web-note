@@ -28,6 +28,9 @@ const base = EditorView.theme({
   "&.cm-focused": { outline: "none" },
   ".cm-scroller": { fontFamily: "inherit", lineHeight: "1.7" },
   ".cm-content": { padding: "1rem" },
+  ".cm-cursor, .cm-dropCursor": {
+    borderLeftColor: "hsl(var(--foreground))",
+  },
   ".cm-wikilink": {
     color: "hsl(var(--primary))",
     textDecoration: "underline",
