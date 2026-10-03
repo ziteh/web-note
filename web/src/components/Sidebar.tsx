@@ -31,7 +31,9 @@ export default function Sidebar(props: { onPick?: () => void }) {
   return (
     <nav class="flex h-full flex-col gap-4 overflow-y-auto p-2">
       <section class="flex flex-col gap-1">
-        <h2 class="px-2 text-xs font-semibold text-muted-foreground">筆記本</h2>
+        <h2 class="px-2 text-xs font-semibold text-muted-foreground">
+          Notebooks
+        </h2>
         <Button
           variant={filters().notebook ? "ghost" : "secondary"}
           class="justify-start"
@@ -54,7 +56,7 @@ export default function Sidebar(props: { onPick?: () => void }) {
       </section>
 
       <section class="flex flex-col gap-1">
-        <h2 class="px-2 text-xs font-semibold text-muted-foreground">標籤</h2>
+        <h2 class="px-2 text-xs font-semibold text-muted-foreground">Tags</h2>
         <For each={tags.data}>
           {(t) => (
             <Button

@@ -28,6 +28,8 @@ const base = EditorView.theme({
   "&.cm-focused": { outline: "none" },
   ".cm-scroller": { fontFamily: "inherit", lineHeight: "1.7" },
   ".cm-content": { padding: "1rem" },
+  ".cm-selectionBackground, &.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, ::selection":
+    { backgroundColor: "hsl(var(--muted-foreground) / 0.3)" },
   ".cm-cursor, .cm-dropCursor": {
     borderLeftColor: "hsl(var(--foreground))",
   },

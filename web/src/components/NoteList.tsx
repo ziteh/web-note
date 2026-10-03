@@ -10,6 +10,8 @@ import {
   useRefreshNotes,
   useStatus,
 } from "~/api/queries";
+import MagnifyingGlassIcon from "~/assets/magnifying-glass.svg";
+import PlusIcon from "~/assets/plus.svg";
 import { useFilters } from "~/lib/filters";
 import {
   DEFAULT_NOTEBOOK,
@@ -176,16 +178,19 @@ export default function NoteList(props: Props) {
               ☰
             </Button>
           </Show>
-          <TextField class="flex-1" value={query()} onChange={setQuery}>
-            <TextFieldInput type="search" placeholder="搜尋標題與內文" />
-          </TextField>
+          <div class="relative flex-1">
+            <MagnifyingGlassIcon class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            <TextField class="w-full" value={query()} onChange={setQuery}>
+              <TextFieldInput class="pl-9" type="search" />
+            </TextField>
+          </div>
           <Button
             variant="outline"
             size="icon"
             aria-label="新增筆記"
             onClick={create}
           >
-            +
+            <PlusIcon />
           </Button>
         </div>
         <Select
