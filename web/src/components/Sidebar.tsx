@@ -2,9 +2,10 @@ import { A } from "@solidjs/router";
 import { For, Show } from "solid-js";
 import { useNotebooks, useStatus, useTags } from "~/api/queries";
 import SunIcon from "~/assets/sun.svg";
+import TrashIcon from "~/assets/trash.svg";
 import { useFilters } from "~/lib/filters";
 import { toggleTheme } from "~/lib/theme";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 
 export default function Sidebar(props: { onPick?: () => void }) {
   const notebooks = useNotebooks();
@@ -67,16 +68,23 @@ export default function Sidebar(props: { onPick?: () => void }) {
         </For>
       </section>
 
-      <A
-        href="/trash"
-        class="mt-auto rounded-md px-4 py-2 text-sm hover:bg-accent"
-      >
-        垃圾桶
-      </A>
-
-      <Button variant="ghost" class="justify-start" onClick={toggleTheme}>
-        <SunIcon />
-      </Button>
+      <div class="mt-auto flex items-center justify-between">
+        <A
+          href="/trash"
+          class={buttonVariants({ variant: "ghost", size: "icon" })}
+          aria-label="垃圾桶"
+        >
+          <TrashIcon />
+        </A>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleTheme}
+          aria-label="切換主題"
+        >
+          <SunIcon />
+        </Button>
+      </div>
 
       <Show when={status.data?.errors.length}>
         <p class="px-2 text-xs text-destructive">
