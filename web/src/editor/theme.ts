@@ -18,6 +18,35 @@ const markdownStyle = HighlightStyle.define([
   { tag: t.processingInstruction, color: "hsl(var(--muted-foreground))" },
   { tag: [t.link, t.url], color: "hsl(var(--primary))" },
   {
+    tag: [t.keyword, t.operatorKeyword, t.modifier],
+    color: "hsl(var(--syntax-keyword))",
+  },
+  {
+    tag: [t.string, t.regexp, t.special(t.string)],
+    color: "hsl(var(--syntax-string))",
+  },
+  {
+    tag: [t.number, t.bool, t.null, t.atom],
+    color: "hsl(var(--syntax-number))",
+  },
+  {
+    tag: [t.function(t.variableName), t.function(t.propertyName), t.macroName],
+    color: "hsl(var(--syntax-function))",
+  },
+  {
+    tag: [t.typeName, t.className, t.namespace, t.tagName],
+    color: "hsl(var(--syntax-type))",
+  },
+  {
+    tag: [t.attributeName, t.propertyName],
+    color: "hsl(var(--syntax-function))",
+  },
+  {
+    tag: [t.comment, t.lineComment, t.blockComment],
+    color: "hsl(var(--syntax-comment))",
+    fontStyle: "italic",
+  },
+  {
     tag: t.monospace,
     fontFamily: "'Sarasa Fixed TC', ui-monospace, monospace",
   },

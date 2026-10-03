@@ -45,6 +45,13 @@
 
     --ring: 240 5.9% 10%;
 
+    --syntax-keyword: 262 70% 45%;
+    --syntax-string: 142 60% 30%;
+    --syntax-number: 25 90% 40%;
+    --syntax-function: 215 80% 45%;
+    --syntax-type: 190 80% 32%;
+    --syntax-comment: 240 4% 55%;
+
     --radius: 0.5rem;
   }
 
@@ -90,6 +97,13 @@
     --error-foreground: 0 84% 60%;
 
     --ring: 240 4.9% 83.9%;
+
+    --syntax-keyword: 262 80% 75%;
+    --syntax-string: 142 50% 62%;
+    --syntax-number: 30 90% 65%;
+    --syntax-function: 215 90% 72%;
+    --syntax-type: 190 70% 60%;
+    --syntax-comment: 240 5% 55%;
 
     --radius: 0.5rem;
   }
