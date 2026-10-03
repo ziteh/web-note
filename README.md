@@ -62,16 +62,15 @@ cargo test
 # Formatter & linter
 cargo fmt
 cargo clippy
-pnpx @biomejs/biome check --write
+pnpm --dir web exec biome check .. --write
 ```
 
 Generate `openapi.json` after the API changes:
 
 ```sh
 cargo run -p web-note-server -- --openapi > openapi.json
+pnpm --dir web exec biome format --write ../openapi.json
 pnpm --dir web gen:api
-
-pnpx @biomejs/biome format --write openapi.json
 ```
 
 Release build:

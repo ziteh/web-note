@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: "3"
+
+vars:
+  APP: web-note-server
+
+silent: true
+tasks:
+  default:
+    aliases: [dev]
+    deps: [dev-be, dev-fe]
+
+  dev-be:
+    cmds:
+      - cargo run -p {{.APP}} --features swagger
+
+  dev-fe:
+    cmds:
+      - pnpm --dir web dev
+
+  release:
+    aliases: [build]
+    cmds:
+      - task: openapi
+      - cargo test
+      - pnpm --dir web build
+      - cargo build --release -p {{.APP}}
+
+  openapi:
+    sources:
+      - crates/**/*.rs
+      - Cargo.toml
+      - Cargo.lock
+    generates:
+      - openapi.json
+      - web/src/api/schema.d.ts
+    cmds:
+      - cargo run -p {{.APP}} -- --openapi > openapi.json.tmp
+      - mv openapi.json.tmp openapi.json
+      - pnpm --dir web exec biome format --write ../openapi.json
+      - pnpm --dir web gen:api
+
+  init:
+    aliases: [i]
+    cmds:
+      - pnpm --dir web install
+      - lefthook install

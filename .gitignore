@@ -17,6 +17,7 @@ lerna-debug.log*
 
 # Misc
 /Notes/
+.task/
 *.db
 *.local
 *.local.*
