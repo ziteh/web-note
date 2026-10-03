@@ -87,6 +87,12 @@ pub fn list(conn: &Connection, q: &Query) -> Result<Vec<NoteMeta>> {
     Ok(notes.into_iter().map(|(_, m)| m).collect())
 }
 
+pub fn get(conn: &Connection, id: &str) -> Result<Option<NoteMeta>> {
+    let clauses = ["n.id = ?".to_string()];
+    let notes = fetch(conn, &clauses, vec![id.to_string()])?;
+    Ok(notes.into_iter().next().map(|(_, m)| m))
+}
+
 pub fn backlinks(conn: &Connection, id: &str) -> Result<Vec<NoteMeta>> {
     let clauses = ["n.id IN (SELECT src FROM links WHERE dst = ?)".to_string()];
     let notes = fetch(conn, &clauses, vec![id.to_string()])?;

@@ -206,7 +206,7 @@ fn scan(root: &Path) -> Result<Vec<(String, PathBuf, FileStat)>> {
     Ok(files)
 }
 
-fn stat_of(path: &Path) -> Result<FileStat> {
+pub(crate) fn stat_of(path: &Path) -> Result<FileStat> {
     let meta = fs::metadata(path).map_err(|source| Error::Io {
         path: path.to_path_buf(),
         source,

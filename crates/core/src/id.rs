@@ -1,4 +1,3 @@
-
 // 36 characters with 12 length: 100 IDs per hour, ~352 years or 308M IDs needed, in order to have a 1% probability of at least one collision.
 
 const ALPHABET: [char; 36] = [

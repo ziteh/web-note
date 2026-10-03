@@ -134,6 +134,17 @@ pub fn normalize_tag(tag: &str) -> String {
     tag.trim().nfc().collect::<String>().to_lowercase()
 }
 
+pub fn normalize_tags<S: AsRef<str>>(tags: &[S]) -> Vec<String> {
+    let mut out: Vec<String> = Vec::new();
+    for tag in tags {
+        let tag = normalize_tag(tag.as_ref());
+        if !tag.is_empty() && !out.contains(&tag) {
+            out.push(tag);
+        }
+    }
+    out
+}
+
 pub fn now_local() -> OffsetDateTime {
     OffsetDateTime::now_local().unwrap_or_else(|_| OffsetDateTime::now_utc())
 }
@@ -173,17 +184,14 @@ fn tags_field(v: Value) -> Result<Vec<String>> {
         Value::Sequence(s) => s,
         _ => return Err(corrupt("`tags` must be a list")),
     };
-    let mut tags: Vec<String> = Vec::new();
+    let mut raw = Vec::new();
     for item in items {
         let Value::String(s) = item else {
             return Err(corrupt("`tags` must contain only strings"));
         };
-        let tag = normalize_tag(&s);
-        if !tag.is_empty() && !tags.contains(&tag) {
-            tags.push(tag);
-        }
+        raw.push(s);
     }
-    Ok(tags)
+    Ok(normalize_tags(&raw))
 }
 
 pub fn format_time(t: OffsetDateTime) -> Result<String> {

@@ -11,7 +11,8 @@ use crate::{
     parse,
 };
 
-pub use query::{NoteMeta, Query, Snippet, backlinks, list};
+pub use query::{NoteMeta, Query, Snippet, backlinks, get, list};
+pub(crate) use reconcile::stat_of;
 pub use reconcile::{Duplicate, Report, reconcile};
 
 /// Bump when the schema changes; a mismatch drops and recreates all tables.
@@ -165,6 +166,49 @@ pub fn path_of(conn: &Connection, id: &str) -> Result<Option<String>> {
     Ok(conn
         .query_row("SELECT path FROM notes WHERE id = ?1", [id], |r| r.get(0))
         .optional()?)
+}
+
+/// Indexed path and file stat of a note.
+pub fn indexed(conn: &Connection, id: &str) -> Result<Option<(String, FileStat)>> {
+    Ok(conn
+        .query_row(
+            "SELECT path, mtime, size FROM notes WHERE id = ?1",
+            [id],
+            |r| {
+                Ok((
+                    r.get(0)?,
+                    FileStat {
+                        mtime: r.get(1)?,
+                        size: r.get(2)?,
+                    },
+                ))
+            },
+        )
+        .optional()?)
+}
+
+pub fn tag_counts(conn: &Connection) -> Result<Vec<(String, i64)>> {
+    let rows = conn
+        .prepare("SELECT tag, COUNT(*) FROM note_tags GROUP BY tag ORDER BY tag")?
+        .query_map([], |r| Ok((r.get(0)?, r.get(1)?)))?
+        .collect::<rusqlite::Result<_>>()?;
+    Ok(rows)
+}
+
+pub fn notebook_counts(conn: &Connection) -> Result<Vec<(String, i64)>> {
+    let rows = conn
+        .prepare("SELECT notebook, COUNT(*) FROM notes GROUP BY notebook")?
+        .query_map([], |r| Ok((r.get(0)?, r.get(1)?)))?
+        .collect::<rusqlite::Result<_>>()?;
+    Ok(rows)
+}
+
+pub fn ids_with_tag(conn: &Connection, tag: &str) -> Result<Vec<String>> {
+    let rows = conn
+        .prepare("SELECT id FROM note_tags WHERE tag = ?1")?
+        .query_map([tag], |r| r.get(0))?
+        .collect::<rusqlite::Result<_>>()?;
+    Ok(rows)
 }
 
 /// Files that failed to load during the last reconcile, as (path, message).
