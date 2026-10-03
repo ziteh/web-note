@@ -1,3 +1,4 @@
+import * as SelectPrimitive from "@kobalte/core/select";
 import { A, useNavigate } from "@solidjs/router";
 import { useQueryClient } from "@tanstack/solid-query";
 import { createEffect, createSignal, For, on, Show } from "solid-js";
@@ -12,6 +13,7 @@ import {
 } from "~/api/queries";
 import MagnifyingGlassIcon from "~/assets/magnifying-glass.svg";
 import PlusIcon from "~/assets/plus.svg";
+import SortIcon from "~/assets/sort.svg";
 import { useFilters } from "~/lib/filters";
 import { type MessageKey, t } from "~/lib/i18n";
 import {
@@ -28,7 +30,7 @@ import {
   AlertDialogTitle,
 } from "./ui/alert-dialog";
 import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -38,13 +40,7 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "./ui/context-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
+import { Select, SelectContent, SelectItem } from "./ui/select";
 import { TextField, TextFieldInput } from "./ui/text-field";
 
 const SEARCH_DEBOUNCE_MS = 250;
@@ -185,6 +181,28 @@ export default function NoteList(props: Props) {
               <TextFieldInput class="pl-9" type="search" />
             </TextField>
           </div>
+          <Select
+            placement="bottom-end"
+            options={SORT_OPTIONS}
+            optionValue={(o) => `${o.key}-${o.desc}`}
+            optionTextValue={(o) => t(o.labelKey)}
+            value={selectedSort()}
+            onChange={(o) => o && setSort({ key: o.key, desc: o.desc })}
+            disallowEmptySelection
+            itemComponent={(p) => (
+              <SelectItem item={p.item}>
+                {t(p.item.rawValue.labelKey)}
+              </SelectItem>
+            )}
+          >
+            <SelectPrimitive.Trigger
+              class={buttonVariants({ variant: "outline", size: "icon" })}
+              aria-label={t(selectedSort()?.labelKey ?? "sortUpdatedDesc")}
+            >
+              <SortIcon />
+            </SelectPrimitive.Trigger>
+            <SelectContent />
+          </Select>
           <Button
             variant="outline"
             size="icon"
@@ -194,24 +212,6 @@ export default function NoteList(props: Props) {
             <PlusIcon />
           </Button>
         </div>
-        <Select
-          options={SORT_OPTIONS}
-          optionValue={(o) => `${o.key}-${o.desc}`}
-          optionTextValue={(o) => t(o.labelKey)}
-          value={selectedSort()}
-          onChange={(o) => o && setSort({ key: o.key, desc: o.desc })}
-          disallowEmptySelection
-          itemComponent={(p) => (
-            <SelectItem item={p.item}>{t(p.item.rawValue.labelKey)}</SelectItem>
-          )}
-        >
-          <SelectTrigger>
-            <SelectValue<SortOption>>
-              {(state) => t(state.selectedOption().labelKey)}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent />
-        </Select>
       </div>
 
       <ul class="min-h-0 flex-1 overflow-y-auto">
