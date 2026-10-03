@@ -1,6 +1,7 @@
 import * as ComboboxPrimitive from "@kobalte/core/combobox";
 import { createMemo, createSignal, For } from "solid-js";
 import { useTags } from "~/api/queries";
+import { t } from "~/lib/i18n";
 import { Badge } from "./ui/badge";
 
 interface Props {
@@ -47,7 +48,7 @@ export default function TagEditor(props: Props) {
             {tag}
             <button
               type="button"
-              aria-label="移除標籤"
+              aria-label={t("removeTag")}
               onClick={() => remove(tag)}
             >
               ×
@@ -61,7 +62,7 @@ export default function TagEditor(props: Props) {
         onChange={add}
         onInputChange={setDraft}
         allowsEmptyCollection
-        placeholder="新增標籤"
+        placeholder={t("addTag")}
         itemComponent={(p) => (
           <ComboboxPrimitive.Item
             item={p.item}

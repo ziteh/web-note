@@ -5,6 +5,7 @@ import MoonIcon from "~/assets/moon.svg";
 import SunIcon from "~/assets/sun.svg";
 import TrashIcon from "~/assets/trash.svg";
 import { useFilters } from "~/lib/filters";
+import { locale, t, toggleLocale } from "~/lib/i18n";
 import { isDark, toggleTheme } from "~/lib/theme";
 import { Button, buttonVariants } from "./ui/button";
 
@@ -32,14 +33,14 @@ export default function Sidebar(props: { onPick?: () => void }) {
     <nav class="flex h-full flex-col gap-4 overflow-y-auto p-2">
       <section class="flex flex-col gap-1">
         <h2 class="px-2 text-xs font-semibold text-muted-foreground">
-          Notebooks
+          {t("notebooks")}
         </h2>
         <Button
           variant={filters().notebook ? "ghost" : "secondary"}
           class="justify-start"
           onClick={() => pick({ notebook: undefined })}
         >
-          全部
+          {t("all")}
         </Button>
         <For each={notebooks.data}>
           {(nb) => (
@@ -56,16 +57,18 @@ export default function Sidebar(props: { onPick?: () => void }) {
       </section>
 
       <section class="flex flex-col gap-1">
-        <h2 class="px-2 text-xs font-semibold text-muted-foreground">Tags</h2>
+        <h2 class="px-2 text-xs font-semibold text-muted-foreground">
+          {t("tags")}
+        </h2>
         <For each={tags.data}>
-          {(t) => (
+          {(tag) => (
             <Button
-              variant={filters().tags.includes(t.tag) ? "secondary" : "ghost"}
+              variant={filters().tags.includes(tag.tag) ? "secondary" : "ghost"}
               class="justify-between"
-              onClick={() => toggleTag(t.tag)}
+              onClick={() => toggleTag(tag.tag)}
             >
-              <span class="truncate">{t.tag}</span>
-              <span class="text-xs text-muted-foreground">{t.count}</span>
+              <span class="truncate">{tag.tag}</span>
+              <span class="text-xs text-muted-foreground">{tag.count}</span>
             </Button>
           )}
         </For>
@@ -75,15 +78,23 @@ export default function Sidebar(props: { onPick?: () => void }) {
         <A
           href="/trash"
           class={buttonVariants({ variant: "ghost", size: "icon" })}
-          aria-label="垃圾桶"
+          aria-label={t("trash")}
         >
           <TrashIcon />
         </A>
         <Button
           variant="ghost"
           size="icon"
+          onClick={toggleLocale}
+          aria-label={t("toggleLanguage")}
+        >
+          {locale() === "en" ? "EN" : "中"}
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={toggleTheme}
-          aria-label="切換主題"
+          aria-label={t("toggleTheme")}
         >
           {isDark() ? <MoonIcon /> : <SunIcon />}
         </Button>
@@ -91,7 +102,7 @@ export default function Sidebar(props: { onPick?: () => void }) {
 
       <Show when={status.data?.errors.length}>
         <p class="px-2 text-xs text-destructive">
-          {status.data?.errors.length} 個檔案無法載入
+          {t("loadErrors", { count: status.data?.errors.length ?? 0 })}
         </p>
       </Show>
     </nav>

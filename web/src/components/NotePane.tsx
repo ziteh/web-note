@@ -27,7 +27,8 @@ import XIcon from "~/assets/x.svg";
 import { createExtensions } from "~/editor/extensions";
 import { EditorSession, type SaveStatus } from "~/editor/session";
 import { lookupChanged } from "~/editor/wikilink";
-import { deletedId, formatDate, formatDateFull, noteTitle } from "~/lib/note";
+import { type MessageKey, t } from "~/lib/i18n";
+import { deletedId, formatDateFull, noteTitle } from "~/lib/note";
 import TagEditor from "./TagEditor";
 import { Button } from "./ui/button";
 
@@ -44,12 +45,12 @@ const STATUS_ICON: Record<SaveStatus, Component> = {
   error: XIcon,
 };
 
-const STATUS_LABEL: Record<SaveStatus, string> = {
-  saved: "已儲存",
-  dirty: "尚未儲存",
-  saving: "儲存中",
-  conflict: "有衝突",
-  error: "儲存失敗",
+const STATUS_LABEL: Record<SaveStatus, MessageKey> = {
+  saved: "statusSaved",
+  dirty: "statusDirty",
+  saving: "statusSaving",
+  conflict: "statusConflict",
+  error: "statusError",
 };
 
 export default function NotePane(props: Props) {
@@ -143,7 +144,7 @@ export default function NotePane(props: Props) {
           <div class="flex items-center gap-2">
             <Show when={props.onBack}>
               <Button variant="ghost" onClick={props.onBack}>
-                ← 返回
+                {t("back")}
               </Button>
             </Show>
             <div class="min-w-0 flex-1">
@@ -157,8 +158,8 @@ export default function NotePane(props: Props) {
                   status() === "conflict" || status() === "error",
               }}
               role="img"
-              aria-label={STATUS_LABEL[status()]}
-              title={STATUS_LABEL[status()]}
+              aria-label={t(STATUS_LABEL[status()])}
+              title={t(STATUS_LABEL[status()])}
             >
               <Dynamic component={STATUS_ICON[status()]} />
             </span>
@@ -167,8 +168,8 @@ export default function NotePane(props: Props) {
               size="icon"
               class="size-6 shrink-0 [&>svg]:size-4"
               classList={{ "bg-accent": showInfo() }}
-              aria-label="筆記資訊"
-              title="筆記資訊"
+              aria-label={t("noteInfo")}
+              title={t("noteInfo")}
               onClick={() => setShowInfo(!showInfo())}
             >
               <InfoIcon />
@@ -179,14 +180,14 @@ export default function NotePane(props: Props) {
               <dl class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
                 <dt class="text-muted-foreground">ID</dt>
                 <dd class="select-text break-all">{props.id}</dd>
-                <dt class="text-muted-foreground">建立</dt>
+                <dt class="text-muted-foreground">{t("created")}</dt>
                 <dd>{formatDateFull(note.data?.meta.created)}</dd>
-                <dt class="text-muted-foreground">更新</dt>
+                <dt class="text-muted-foreground">{t("updated")}</dt>
                 <dd>{formatDateFull(note.data?.meta.updated)}</dd>
               </dl>
               <div>
                 <div class="text-muted-foreground">
-                  反向連結（{backlinks.data?.length ?? 0}）
+                  {t("backlinks", { count: backlinks.data?.length ?? 0 })}
                 </div>
                 <ul class="mt-1 flex flex-col">
                   <For each={backlinks.data}>
@@ -210,20 +211,20 @@ export default function NotePane(props: Props) {
           </Show>
           <Show when={status() === "conflict"}>
             <div class="flex flex-wrap items-center gap-2 rounded-md border border-destructive p-2 text-sm">
-              <span class="flex-1">這則筆記在其他地方被修改過。</span>
+              <span class="flex-1">{t("conflictMessage")}</span>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => resolve("discard")}
               >
-                載入新版本（放棄我的修改）
+                {t("loadLatest")}
               </Button>
               <Button
                 size="sm"
                 variant="destructive"
                 onClick={() => resolve("overwrite")}
               >
-                覆蓋
+                {t("overwrite")}
               </Button>
             </div>
           </Show>
@@ -231,7 +232,7 @@ export default function NotePane(props: Props) {
       </Show>
 
       <Show when={props.id === undefined}>
-        <p class="p-4 text-muted-foreground">選擇一則筆記</p>
+        <p class="p-4 text-muted-foreground">{t("selectNote")}</p>
       </Show>
       <Show when={note.isError}>
         <p class="p-4 text-destructive">{note.error?.message}</p>

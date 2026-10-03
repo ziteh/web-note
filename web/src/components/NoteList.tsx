@@ -13,6 +13,7 @@ import {
 import MagnifyingGlassIcon from "~/assets/magnifying-glass.svg";
 import PlusIcon from "~/assets/plus.svg";
 import { useFilters } from "~/lib/filters";
+import { type MessageKey, t } from "~/lib/i18n";
 import {
   DEFAULT_NOTEBOOK,
   formatDate,
@@ -49,16 +50,16 @@ import { TextField, TextFieldInput } from "./ui/text-field";
 const SEARCH_DEBOUNCE_MS = 250;
 
 interface SortOption extends Sort {
-  label: string;
+  labelKey: MessageKey;
 }
 
 const SORT_OPTIONS: SortOption[] = [
-  { key: "updated", desc: true, label: "更新時間：新到舊" },
-  { key: "updated", desc: false, label: "更新時間：舊到新" },
-  { key: "created", desc: true, label: "建立時間：新到舊" },
-  { key: "created", desc: false, label: "建立時間：舊到新" },
-  { key: "title", desc: false, label: "標題：升冪" },
-  { key: "title", desc: true, label: "標題：降冪" },
+  { key: "updated", desc: true, labelKey: "sortUpdatedDesc" },
+  { key: "updated", desc: false, labelKey: "sortUpdatedAsc" },
+  { key: "created", desc: true, labelKey: "sortCreatedDesc" },
+  { key: "created", desc: false, labelKey: "sortCreatedAsc" },
+  { key: "title", desc: false, labelKey: "sortTitleAsc" },
+  { key: "title", desc: true, labelKey: "sortTitleDesc" },
 ];
 
 interface Props {
@@ -187,7 +188,7 @@ export default function NoteList(props: Props) {
           <Button
             variant="outline"
             size="icon"
-            aria-label="新增筆記"
+            aria-label={t("newNote")}
             onClick={create}
           >
             <PlusIcon />
@@ -196,17 +197,17 @@ export default function NoteList(props: Props) {
         <Select
           options={SORT_OPTIONS}
           optionValue={(o) => `${o.key}-${o.desc}`}
-          optionTextValue="label"
+          optionTextValue={(o) => t(o.labelKey)}
           value={selectedSort()}
           onChange={(o) => o && setSort({ key: o.key, desc: o.desc })}
           disallowEmptySelection
           itemComponent={(p) => (
-            <SelectItem item={p.item}>{p.item.rawValue.label}</SelectItem>
+            <SelectItem item={p.item}>{t(p.item.rawValue.labelKey)}</SelectItem>
           )}
         >
           <SelectTrigger>
             <SelectValue<SortOption>>
-              {(state) => state.selectedOption().label}
+              {(state) => t(state.selectedOption().labelKey)}
             </SelectValue>
           </SelectTrigger>
           <SelectContent />
@@ -216,16 +217,14 @@ export default function NoteList(props: Props) {
       <ul class="min-h-0 flex-1 overflow-y-auto">
         <Show when={status.data?.duplicates.length}>
           <li class="flex flex-col gap-2 border-b bg-accent p-3 text-sm">
-            <div class="font-medium">
-              發現重複的筆記 id，已為較新的檔案重新指派
-            </div>
+            <div class="font-medium">{t("duplicateIds")}</div>
             <ul class="text-xs text-muted-foreground">
               <For each={status.data?.duplicates}>
                 {(d) => <li class="truncate">{d.path}</li>}
               </For>
             </ul>
             <Button size="sm" variant="outline" onClick={dismissDuplicates}>
-              知道了
+              {t("dismiss")}
             </Button>
           </li>
         </Show>
@@ -250,7 +249,7 @@ export default function NoteList(props: Props) {
         </For>
         <Show when={notes.isSuccess && sorted().length === 0}>
           <li class="p-4 text-center text-sm text-muted-foreground">
-            沒有符合的筆記
+            {t("noMatches")}
           </li>
         </Show>
       </ul>
@@ -260,18 +259,16 @@ export default function NoteList(props: Props) {
         onOpenChange={(open) => !open && setPendingDelete(undefined)}
       >
         <AlertDialogContent>
-          <AlertDialogTitle>刪除筆記</AlertDialogTitle>
+          <AlertDialogTitle>{t("deleteNote")}</AlertDialogTitle>
           <AlertDialogDescription>
-            有 {pendingDelete()?.backlinks}{" "}
-            則筆記連結到這則筆記，刪除後那些連結會變成失效連結。
-            刪除的筆記會移到垃圾桶。
+            {t("deleteNoteConfirm", { count: pendingDelete()?.backlinks ?? 0 })}
           </AlertDialogDescription>
           <div class="flex justify-end gap-2">
             <Button
               variant="outline"
               onClick={() => setPendingDelete(undefined)}
             >
-              取消
+              {t("cancel")}
             </Button>
             <Button
               variant="destructive"
@@ -281,7 +278,7 @@ export default function NoteList(props: Props) {
                 if (id) void remove(id);
               }}
             >
-              刪除
+              {t("delete")}
             </Button>
           </div>
         </AlertDialogContent>
@@ -333,7 +330,7 @@ function NoteRow(props: {
       </ContextMenuTrigger>
       <ContextMenuContent>
         <ContextMenuSub>
-          <ContextMenuSubTrigger>移動到筆記本</ContextMenuSubTrigger>
+          <ContextMenuSubTrigger>{t("moveToNotebook")}</ContextMenuSubTrigger>
           <ContextMenuSubContent>
             <For each={notebooks.data}>
               {(n) => (
@@ -351,7 +348,7 @@ function NoteRow(props: {
           class="text-destructive"
           onSelect={() => props.onDelete(props.note.id)}
         >
-          刪除
+          {t("delete")}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>

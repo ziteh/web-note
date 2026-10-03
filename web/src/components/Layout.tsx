@@ -2,6 +2,7 @@ import { useNavigate, useParams } from "@solidjs/router";
 import { createSignal, onCleanup, onMount, Show } from "solid-js";
 import { useRescan } from "~/api/queries";
 import { useFilters } from "~/lib/filters";
+import { t } from "~/lib/i18n";
 import { createIsDesktop } from "~/lib/media";
 import NoteList from "./NoteList";
 import NotePane from "./NotePane";
@@ -71,7 +72,7 @@ function MobileLayout(props: { id?: string }) {
         <div class="flex h-full flex-col">
           <div class="border-b p-2">
             <Button variant="ghost" onClick={() => setShowSidebar(false)}>
-              ← 筆記列表
+              {t("noteListBack")}
             </Button>
           </div>
           <div class="min-h-0 flex-1">
