@@ -1,7 +1,9 @@
 import { A } from "@solidjs/router";
 import { For, Show } from "solid-js";
 import { useNotebooks, useStatus, useTags } from "~/api/queries";
+import SunIcon from "~/assets/sun.svg";
 import { useFilters } from "~/lib/filters";
+import { toggleTheme } from "~/lib/theme";
 import { Button } from "./ui/button";
 
 export default function Sidebar(props: { onPick?: () => void }) {
@@ -71,6 +73,10 @@ export default function Sidebar(props: { onPick?: () => void }) {
       >
         垃圾桶
       </A>
+
+      <Button variant="ghost" class="justify-start" onClick={toggleTheme}>
+        <SunIcon />
+      </Button>
 
       <Show when={status.data?.errors.length}>
         <p class="px-2 text-xs text-destructive">

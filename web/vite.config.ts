@@ -1,9 +1,10 @@
 import path from "node:path";
 import { defineConfig } from "vite";
 import solid from "vite-plugin-solid";
+import solidSvg from "vite-plugin-solid-svg";
 
 export default defineConfig({
-  plugins: [solid()],
+  plugins: [solid(), solidSvg()],
   resolve: {
     alias: {
       "~": path.resolve(import.meta.dirname, "./src"),
