@@ -59,6 +59,7 @@ const base = EditorView.theme({
   ".cm-content": { padding: "1rem" },
   ".cm-selectionBackground, &.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, ::selection":
     { backgroundColor: "hsl(var(--muted-foreground) / 0.3)" },
+  ".cm-selectionLayer": { zIndex: "150 !important" },
   ".cm-cursor, .cm-dropCursor": {
     borderLeftColor: "hsl(var(--foreground))",
   },
@@ -71,6 +72,12 @@ const base = EditorView.theme({
     color: "hsl(var(--destructive))",
     textDecoration: "line-through",
   },
+  ".cm-inline-code": {
+    backgroundColor: "hsl(var(--muted))",
+    borderRadius: "0.25em",
+    boxShadow: "0 0 0 0.15em hsl(var(--muted))",
+  },
+  ".cm-code-block": { backgroundColor: "hsl(var(--muted))" },
   ".cm-task-checkbox": { margin: "0 0.25rem 0 0", verticalAlign: "middle" },
   ".cm-image": { display: "block", maxWidth: "100%", margin: "0.5rem 0" },
 });
