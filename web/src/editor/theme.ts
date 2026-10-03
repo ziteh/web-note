@@ -19,7 +19,7 @@ const markdownStyle = HighlightStyle.define([
   { tag: [t.link, t.url], color: "hsl(var(--primary))" },
   {
     tag: t.monospace,
-    fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+    fontFamily: "'Sarasa Fixed TC', ui-monospace, monospace",
   },
 ]);
 

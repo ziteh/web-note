@@ -12,6 +12,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ["Sarasa Fixed TC", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["Sarasa Fixed TC", "ui-monospace", "monospace"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
