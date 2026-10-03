@@ -1,3 +1,5 @@
+# Run: lefthook install
+
 pre-commit:
   parallel: true
   commands:
