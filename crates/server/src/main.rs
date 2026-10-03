@@ -10,7 +10,7 @@ struct Args {
     notes_dir: PathBuf,
     #[arg(long, env = "BIND", default_value = "127.0.0.1")]
     bind: IpAddr,
-    #[arg(long, env = "PORT", default_value_t = 3000)]
+    #[arg(long, env = "PORT", default_value_t = 5393)]
     port: u16,
     #[arg(long, env = "MAX_ASSET_BYTES", default_value_t = 10 * 1024 * 1024)]
     max_asset_bytes: u64,
