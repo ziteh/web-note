@@ -20,13 +20,14 @@ import {
   useRefreshNotes,
 } from "~/api/queries";
 import CheckIcon from "~/assets/check.svg";
+import InfoIcon from "~/assets/info.svg";
 import UpdateIcon from "~/assets/update.svg";
 import WarningIcon from "~/assets/warning.svg";
 import XIcon from "~/assets/x.svg";
 import { createExtensions } from "~/editor/extensions";
 import { EditorSession, type SaveStatus } from "~/editor/session";
 import { lookupChanged } from "~/editor/wikilink";
-import { deletedId, noteTitle } from "~/lib/note";
+import { deletedId, formatDate, formatDateFull, noteTitle } from "~/lib/note";
 import TagEditor from "./TagEditor";
 import { Button } from "./ui/button";
 
@@ -60,6 +61,7 @@ export default function NotePane(props: Props) {
   const navigate = useNavigate();
 
   const [status, setStatus] = createSignal<SaveStatus>("saved");
+  const [showInfo, setShowInfo] = createSignal(false);
   const [tags, setTags] = createSignal<string[]>([]);
 
   const byId = createMemo(
@@ -160,7 +162,52 @@ export default function NotePane(props: Props) {
             >
               <Dynamic component={STATUS_ICON[status()]} />
             </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              class="size-6 shrink-0 [&>svg]:size-4"
+              classList={{ "bg-accent": showInfo() }}
+              aria-label="筆記資訊"
+              title="筆記資訊"
+              onClick={() => setShowInfo(!showInfo())}
+            >
+              <InfoIcon />
+            </Button>
           </div>
+          <Show when={showInfo()}>
+            <div class="flex flex-col gap-2 rounded-md border p-2 text-sm">
+              <dl class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+                <dt class="text-muted-foreground">ID</dt>
+                <dd class="select-text break-all">{props.id}</dd>
+                <dt class="text-muted-foreground">建立</dt>
+                <dd>{formatDateFull(note.data?.meta.created)}</dd>
+                <dt class="text-muted-foreground">更新</dt>
+                <dd>{formatDateFull(note.data?.meta.updated)}</dd>
+              </dl>
+              <div>
+                <div class="text-muted-foreground">
+                  反向連結（{backlinks.data?.length ?? 0}）
+                </div>
+                <ul class="mt-1 flex flex-col">
+                  <For each={backlinks.data}>
+                    {(link) => (
+                      <li>
+                        <A
+                          href={`/n/${link.id}${location.search}`}
+                          class="block truncate rounded px-2 py-1 hover:bg-accent"
+                        >
+                          {noteTitle(link)}
+                          <span class="ml-2 text-xs text-muted-foreground">
+                            {link.path}
+                          </span>
+                        </A>
+                      </li>
+                    )}
+                  </For>
+                </ul>
+              </div>
+            </div>
+          </Show>
           <Show when={status() === "conflict"}>
             <div class="flex flex-wrap items-center gap-2 rounded-md border border-destructive p-2 text-sm">
               <span class="flex-1">這則筆記在其他地方被修改過。</span>
@@ -194,31 +241,6 @@ export default function NotePane(props: Props) {
         class="min-h-0 flex-1 overflow-hidden"
         classList={{ hidden: props.id === undefined || note.isError }}
       />
-
-      <Show when={backlinks.data?.length}>
-        <details class="border-t p-2 text-sm">
-          <summary class="cursor-pointer text-muted-foreground">
-            反向連結（{backlinks.data?.length}）
-          </summary>
-          <ul class="mt-1 flex flex-col">
-            <For each={backlinks.data}>
-              {(link) => (
-                <li>
-                  <A
-                    href={`/n/${link.id}${location.search}`}
-                    class="block truncate rounded px-2 py-1 hover:bg-accent"
-                  >
-                    {noteTitle(link)}
-                    <span class="ml-2 text-xs text-muted-foreground">
-                      {link.path}
-                    </span>
-                  </A>
-                </li>
-              )}
-            </For>
-          </ul>
-        </details>
-      </Show>
     </div>
   );
 }
