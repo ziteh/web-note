@@ -57,4 +57,11 @@ export default {
   moveToTrash: "Move to trash",
   emptyTrashConfirm:
     "All notes in the trash will be permanently deleted and cannot be restored.",
+  rename: "Rename",
+  create: "Create",
+  newNotebook: "New notebook",
+  renameNotebook: "Rename notebook",
+  deleteNotebook: "Delete notebook",
+  deleteNotebookConfirm:
+    "Delete notebook {name}? Only empty notebooks can be deleted.",
 };

@@ -58,6 +58,12 @@ const zhHant: Record<keyof typeof en, string> = {
   unusedImagesCount: "{count} 個",
   moveToTrash: "移到垃圾桶",
   emptyTrashConfirm: "垃圾桶內的所有筆記會被永久刪除，無法還原。",
+  rename: "重新命名",
+  create: "建立",
+  newNotebook: "新增筆記本",
+  renameNotebook: "重新命名筆記本",
+  deleteNotebook: "刪除筆記本",
+  deleteNotebookConfirm: "要刪除筆記本「{name}」嗎？只有空的筆記本可以刪除。",
 };
 
 export default zhHant;
