@@ -8,6 +8,11 @@
       const t = localStorage.getItem("theme");
       if (t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches)
         document.documentElement.classList.add("dark");
+      const root = document.documentElement;
+      const ui = localStorage.getItem("ui-theme");
+      const syntax = localStorage.getItem("syntax-theme");
+      if (ui && ui !== "default") root.dataset.theme = ui;
+      if (syntax && syntax !== "default") root.dataset.syntax = syntax;
     </script>
     <title>web-note</title>
   </head>

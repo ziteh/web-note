@@ -7,6 +7,8 @@ const KEY = "locale";
 const MESSAGES = { "zh-Hant": zhHant, en };
 const DATE_LOCALES = { "zh-Hant": "zh-TW", en: "en-US" };
 
+export const LOCALES = Object.keys(MESSAGES) as Locale[];
+
 export type Locale = keyof typeof MESSAGES;
 export type MessageKey = keyof typeof zhHant;
 
@@ -19,7 +21,7 @@ const initial = (): Locale => {
   return navigator.language.startsWith("zh") ? "zh-Hant" : "en";
 };
 
-const [locale, setLocale] = createSignal<Locale>(initial());
+const [locale, setLocaleSignal] = createSignal<Locale>(initial());
 
 const apply = (value: Locale) => {
   document.documentElement.lang = value;
@@ -29,13 +31,14 @@ apply(locale());
 
 export { locale };
 
+export const localeName = (value: Locale) => MESSAGES[value].languageName;
+
 export const dateLocale = () => DATE_LOCALES[locale()];
 
-export function toggleLocale() {
-  const next: Locale = locale() === "en" ? "zh-Hant" : "en";
-  setLocale(next);
-  localStorage.setItem(KEY, next);
-  apply(next);
+export function setLocale(value: Locale) {
+  setLocaleSignal(value);
+  localStorage.setItem(KEY, value);
+  apply(value);
 }
 
 export function t(key: MessageKey, params?: Record<string, string | number>) {

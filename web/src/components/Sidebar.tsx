@@ -2,10 +2,11 @@ import { A } from "@solidjs/router";
 import { For, Show } from "solid-js";
 import { useNotebooks, useStatus, useTags } from "~/api/queries";
 import MoonIcon from "~/assets/moon.svg";
+import SettingsIcon from "~/assets/settings.svg";
 import SunIcon from "~/assets/sun.svg";
 import TrashIcon from "~/assets/trash.svg";
 import { useFilters } from "~/lib/filters";
-import { locale, t, toggleLocale } from "~/lib/i18n";
+import { t } from "~/lib/i18n";
 import { isDark, toggleTheme } from "~/lib/theme";
 import { Button, buttonVariants } from "./ui/button";
 
@@ -82,22 +83,23 @@ export default function Sidebar(props: { onPick?: () => void }) {
         >
           <TrashIcon />
         </A>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleLocale}
-          aria-label={t("toggleLanguage")}
-        >
-          {locale() === "en" ? "EN" : "中"}
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleTheme}
-          aria-label={t("toggleTheme")}
-        >
-          {isDark() ? <MoonIcon /> : <SunIcon />}
-        </Button>
+        <div class="flex items-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            aria-label={t("toggleTheme")}
+          >
+            {isDark() ? <MoonIcon /> : <SunIcon />}
+          </Button>
+          <A
+            href="/settings"
+            class={buttonVariants({ variant: "ghost", size: "icon" })}
+            aria-label={t("settings")}
+          >
+            <SettingsIcon />
+          </A>
+        </div>
       </div>
 
       <Show when={status.data?.errors.length}>

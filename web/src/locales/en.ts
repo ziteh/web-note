@@ -1,4 +1,5 @@
 export default {
+  languageName: "English",
   untitled: "Untitled",
   back: "← Back",
   cancel: "Cancel",
@@ -9,7 +10,11 @@ export default {
   all: "All",
   trash: "Trash",
   toggleTheme: "Toggle theme",
-  toggleLanguage: "Switch language",
+  language: "Language",
+  settings: "Settings",
+  uiTheme: "UI theme",
+  syntaxTheme: "Code theme",
+  themeDefault: "Default",
   loadErrors: "{count} files failed to load",
   noteListBack: "← Notes",
   removeTag: "Remove tag",

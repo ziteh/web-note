@@ -1,6 +1,7 @@
 import type en from "./en";
 
 const zhHant: Record<keyof typeof en, string> = {
+  languageName: "繁體中文",
   untitled: "未命名",
   back: "← 返回",
   cancel: "取消",
@@ -11,7 +12,11 @@ const zhHant: Record<keyof typeof en, string> = {
   all: "全部",
   trash: "垃圾桶",
   toggleTheme: "切換主題",
-  toggleLanguage: "切換語言",
+  language: "語言",
+  settings: "設定",
+  uiTheme: "UI 主題",
+  syntaxTheme: "程式碼主題",
+  themeDefault: "預設",
   loadErrors: "{count} 個檔案無法載入",
   noteListBack: "← 筆記列表",
   removeTag: "移除標籤",
