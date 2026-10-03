@@ -10,33 +10,19 @@ import {
   Show,
 } from "solid-js";
 import { toast } from "solid-sonner";
-import { api, type Note, unwrap } from "~/api/client";
+import type { Note } from "~/api/client";
 import {
   useAllNotes,
   useBacklinks,
   useNote,
-  useNotebooks,
   useRefreshNotes,
 } from "~/api/queries";
 import { createExtensions } from "~/editor/extensions";
 import { EditorSession, type SaveStatus } from "~/editor/session";
 import { lookupChanged } from "~/editor/wikilink";
-import { noteTitle } from "~/lib/note";
+import { deletedId, noteTitle } from "~/lib/note";
 import TagEditor from "./TagEditor";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogTitle,
-} from "./ui/alert-dialog";
 import { Button } from "./ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
 
 interface Props {
   id?: string;
@@ -54,7 +40,6 @@ const STATUS_LABEL: Record<SaveStatus, string> = {
 export default function NotePane(props: Props) {
   const note = useNote(() => props.id);
   const allNotes = useAllNotes();
-  const notebooks = useNotebooks();
   const backlinks = useBacklinks(() => props.id);
   const client = useQueryClient();
   const refresh = useRefreshNotes();
@@ -62,7 +47,6 @@ export default function NotePane(props: Props) {
 
   const [status, setStatus] = createSignal<SaveStatus>("saved");
   const [tags, setTags] = createSignal<string[]>([]);
-  const [backlinkCount, setBacklinkCount] = createSignal<number>();
 
   const byId = createMemo(
     () => new Map((allNotes.data ?? []).map((n) => [n.id, n])),
@@ -120,50 +104,10 @@ export default function NotePane(props: Props) {
     session?.editorView.dispatch({ effects: lookupChanged.of(null) });
   });
 
-  const move = async (notebook: string) => {
-    const id = props.id;
-    if (!id || notebook === note.data?.meta.notebook) return;
-    try {
-      const moved = await unwrap(
-        api.POST("/api/notes/{id}/move", {
-          params: { path: { id } },
-          body: { notebook },
-        }),
-      );
-      saved(moved);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : String(e));
-    }
-  };
-
-  const remove = async () => {
-    const id = props.id;
-    if (!id) return;
-    session?.forget(id);
-    try {
-      await unwrap(api.DELETE("/api/notes/{id}", { params: { path: { id } } }));
-      client.removeQueries({ queryKey: ["note", id] });
-      await refresh();
-      navigate(`/${location.search}`, { replace: true });
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : String(e));
-    }
-  };
-
-  /** Deleting is recoverable, so only notes that others link to ask first. */
-  const requestDelete = async () => {
-    const id = props.id;
-    if (!id) return;
-    try {
-      const links = await unwrap(
-        api.GET("/api/notes/{id}/backlinks", { params: { path: { id } } }),
-      );
-      if (links.length > 0) setBacklinkCount(links.length);
-      else await remove();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : String(e));
-    }
-  };
+  createEffect(() => {
+    const id = deletedId();
+    if (id) session?.forget(id);
+  });
 
   const resolve = async (choice: "discard" | "overwrite") => {
     const id = props.id;
@@ -186,28 +130,9 @@ export default function NotePane(props: Props) {
                 ← 返回
               </Button>
             </Show>
-            <Select
-              options={(notebooks.data ?? []).map((n) => n.name)}
-              value={note.data?.meta.notebook}
-              onChange={(name) => name && void move(name)}
-              disallowEmptySelection
-              itemComponent={(p) => (
-                <SelectItem item={p.item}>{p.item.rawValue}</SelectItem>
-              )}
-            >
-              <SelectTrigger class="h-8 w-40">
-                <SelectValue<string>>
-                  {(state) => state.selectedOption()}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent />
-            </Select>
             <span class="ml-auto text-xs text-muted-foreground">
               {STATUS_LABEL[status()]}
             </span>
-            <Button variant="outline" size="sm" onClick={requestDelete}>
-              刪除
-            </Button>
           </div>
           <TagEditor tags={tags()} onChange={(t) => session?.setTags(t)} />
           <Show when={status() === "conflict"}>
@@ -268,37 +193,6 @@ export default function NotePane(props: Props) {
           </ul>
         </details>
       </Show>
-
-      <AlertDialog
-        open={backlinkCount() !== undefined}
-        onOpenChange={(open) => !open && setBacklinkCount(undefined)}
-      >
-        <AlertDialogContent>
-          <AlertDialogTitle>刪除筆記</AlertDialogTitle>
-          <AlertDialogDescription>
-            有 {backlinkCount()}{" "}
-            則筆記連結到這則筆記，刪除後那些連結會變成失效連結。
-            刪除的筆記會移到垃圾桶。
-          </AlertDialogDescription>
-          <div class="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setBacklinkCount(undefined)}
-            >
-              取消
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => {
-                setBacklinkCount(undefined);
-                void remove();
-              }}
-            >
-              刪除
-            </Button>
-          </div>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

@@ -1,7 +1,11 @@
+import { createSignal } from "solid-js";
 import type { NoteMeta } from "~/api/client";
 
 export const DEFAULT_NOTEBOOK = "Inbox";
 export const UNTITLED = "未命名";
+
+/** Lets the editor drop local state for a note deleted from the list. */
+export const [deletedId, setDeletedId] = createSignal<string>();
 
 export function noteTitle(note: Pick<NoteMeta, "title">) {
   return note.title ?? UNTITLED;

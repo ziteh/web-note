@@ -4,12 +4,37 @@ import { createEffect, createSignal, For, on, Show } from "solid-js";
 import { toast } from "solid-sonner";
 import type { NoteMeta } from "~/api/client";
 import { api, unwrap } from "~/api/client";
-import { useNotes, useRefreshNotes, useStatus } from "~/api/queries";
+import {
+  useNotebooks,
+  useNotes,
+  useRefreshNotes,
+  useStatus,
+} from "~/api/queries";
 import { useFilters } from "~/lib/filters";
-import { DEFAULT_NOTEBOOK, formatDate, noteTitle } from "~/lib/note";
+import {
+  DEFAULT_NOTEBOOK,
+  formatDate,
+  noteTitle,
+  setDeletedId,
+} from "~/lib/note";
 import { type Sort, setSort, sort, sortNotes } from "~/lib/sort";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+} from "./ui/alert-dialog";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuTrigger,
+} from "./ui/context-menu";
 import {
   Select,
   SelectContent,
@@ -48,6 +73,10 @@ export default function NoteList(props: Props) {
   const navigate = useNavigate();
   const refresh = useRefreshNotes();
   const client = useQueryClient();
+  const [pendingDelete, setPendingDelete] = createSignal<{
+    id: string;
+    backlinks: number;
+  }>();
   const [query, setQuery] = createSignal(filters().q ?? "");
 
   createEffect(
@@ -87,6 +116,48 @@ export default function NoteList(props: Props) {
     try {
       await unwrap(api.POST("/api/system/duplicates/dismiss"));
       await client.invalidateQueries({ queryKey: ["status"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    }
+  };
+
+  const move = async (id: string, notebook: string) => {
+    try {
+      const moved = await unwrap(
+        api.POST("/api/notes/{id}/move", {
+          params: { path: { id } },
+          body: { notebook },
+        }),
+      );
+      client.setQueryData(["note", id], moved);
+      await refresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    }
+  };
+
+  const remove = async (id: string) => {
+    setDeletedId(id);
+    try {
+      await unwrap(api.DELETE("/api/notes/{id}", { params: { path: { id } } }));
+      client.removeQueries({ queryKey: ["note", id] });
+      await refresh();
+      if (id === props.selectedId) {
+        navigate(`/${location.search}`, { replace: true });
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    }
+  };
+
+  /** Deleting is recoverable, so only notes that others link to ask first. */
+  const requestDelete = async (id: string) => {
+    try {
+      const links = await unwrap(
+        api.GET("/api/notes/{id}/backlinks", { params: { path: { id } } }),
+      );
+      if (links.length > 0) setPendingDelete({ id, backlinks: links.length });
+      else await remove(id);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : String(e));
     }
@@ -167,6 +238,8 @@ export default function NoteList(props: Props) {
               note={note}
               selected={note.id === props.selectedId}
               onSelect={props.onSelect}
+              onMove={move}
+              onDelete={requestDelete}
             />
           )}
         </For>
@@ -176,6 +249,38 @@ export default function NoteList(props: Props) {
           </li>
         </Show>
       </ul>
+
+      <AlertDialog
+        open={pendingDelete() !== undefined}
+        onOpenChange={(open) => !open && setPendingDelete(undefined)}
+      >
+        <AlertDialogContent>
+          <AlertDialogTitle>刪除筆記</AlertDialogTitle>
+          <AlertDialogDescription>
+            有 {pendingDelete()?.backlinks}{" "}
+            則筆記連結到這則筆記，刪除後那些連結會變成失效連結。
+            刪除的筆記會移到垃圾桶。
+          </AlertDialogDescription>
+          <div class="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setPendingDelete(undefined)}
+            >
+              取消
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                const id = pendingDelete()?.id;
+                setPendingDelete(undefined);
+                if (id) void remove(id);
+              }}
+            >
+              刪除
+            </Button>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -184,37 +289,67 @@ function NoteRow(props: {
   note: NoteMeta;
   selected: boolean;
   onSelect?: (id: string) => void;
+  onMove: (id: string, notebook: string) => void;
+  onDelete: (id: string) => void;
 }) {
+  const notebooks = useNotebooks();
   const href = () => `/n/${props.note.id}${location.search}`;
   return (
-    <li class="border-b">
-      <A
-        href={href()}
-        onClick={(e) => {
-          if (props.onSelect) {
-            e.preventDefault();
-            props.onSelect(props.note.id);
-          }
-        }}
-        class="block p-3 hover:bg-accent"
-        classList={{ "bg-accent": props.selected }}
-      >
-        <div class="truncate font-medium">{noteTitle(props.note)}</div>
-        <div class="line-clamp-2 text-sm text-muted-foreground">
-          <Show when={props.note.snippet} fallback={props.note.summary}>
-            {(s) => <Snippet text={s().text} start={s().start} end={s().end} />}
-          </Show>
-        </div>
-        <div class="mt-1 flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
-          <span>{props.note.notebook}</span>
-          <span>·</span>
-          <span>{formatDate(props.note.updated)}</span>
-          <For each={props.note.tags}>
-            {(tag) => <Badge variant="secondary">{tag}</Badge>}
-          </For>
-        </div>
-      </A>
-    </li>
+    <ContextMenu>
+      <ContextMenuTrigger as="li" class="border-b">
+        <A
+          href={href()}
+          onClick={(e) => {
+            if (props.onSelect) {
+              e.preventDefault();
+              props.onSelect(props.note.id);
+            }
+          }}
+          class="block p-3 hover:bg-accent"
+          classList={{ "bg-accent": props.selected }}
+        >
+          <div class="truncate font-medium">{noteTitle(props.note)}</div>
+          <div class="line-clamp-2 text-sm text-muted-foreground">
+            <Show when={props.note.snippet} fallback={props.note.summary}>
+              {(s) => (
+                <Snippet text={s().text} start={s().start} end={s().end} />
+              )}
+            </Show>
+          </div>
+          <div class="mt-1 flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
+            <span>{props.note.notebook}</span>
+            <span>·</span>
+            <span>{formatDate(props.note.updated)}</span>
+            <For each={props.note.tags}>
+              {(tag) => <Badge variant="secondary">{tag}</Badge>}
+            </For>
+          </div>
+        </A>
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        <ContextMenuSub>
+          <ContextMenuSubTrigger>移動到筆記本</ContextMenuSubTrigger>
+          <ContextMenuSubContent>
+            <For each={notebooks.data}>
+              {(n) => (
+                <ContextMenuItem
+                  disabled={n.name === props.note.notebook}
+                  onSelect={() => props.onMove(props.note.id, n.name)}
+                >
+                  {n.name}
+                </ContextMenuItem>
+              )}
+            </For>
+          </ContextMenuSubContent>
+        </ContextMenuSub>
+        <ContextMenuItem
+          class="text-destructive"
+          onSelect={() => props.onDelete(props.note.id)}
+        >
+          刪除
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   );
 }
 
