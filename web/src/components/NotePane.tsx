@@ -1,6 +1,7 @@
 import { A, useNavigate } from "@solidjs/router";
 import { useQueryClient } from "@tanstack/solid-query";
 import {
+  type Component,
   createEffect,
   createMemo,
   createSignal,
@@ -9,6 +10,7 @@ import {
   onMount,
   Show,
 } from "solid-js";
+import { Dynamic } from "solid-js/web";
 import { toast } from "solid-sonner";
 import type { Note } from "~/api/client";
 import {
@@ -17,6 +19,10 @@ import {
   useNote,
   useRefreshNotes,
 } from "~/api/queries";
+import CheckIcon from "~/assets/check.svg";
+import CrossIcon from "~/assets/cross.svg";
+import ExclamationIcon from "~/assets/exclamation.svg";
+import UpdateIcon from "~/assets/update.svg";
 import { createExtensions } from "~/editor/extensions";
 import { EditorSession, type SaveStatus } from "~/editor/session";
 import { lookupChanged } from "~/editor/wikilink";
@@ -28,6 +34,14 @@ interface Props {
   id?: string;
   onBack?: () => void;
 }
+
+const STATUS_ICON: Record<SaveStatus, Component> = {
+  saved: CheckIcon,
+  dirty: UpdateIcon,
+  saving: UpdateIcon,
+  conflict: ExclamationIcon,
+  error: CrossIcon,
+};
 
 const STATUS_LABEL: Record<SaveStatus, string> = {
   saved: "已儲存",
@@ -130,11 +144,23 @@ export default function NotePane(props: Props) {
                 ← 返回
               </Button>
             </Show>
-            <span class="ml-auto text-xs text-muted-foreground">
-              {STATUS_LABEL[status()]}
+            <div class="min-w-0 flex-1">
+              <TagEditor tags={tags()} onChange={(t) => session?.setTags(t)} />
+            </div>
+            <span
+              class="inline-flex shrink-0 text-muted-foreground"
+              classList={{
+                "animate-spin": status() === "saving",
+                "text-destructive":
+                  status() === "conflict" || status() === "error",
+              }}
+              role="img"
+              aria-label={STATUS_LABEL[status()]}
+              title={STATUS_LABEL[status()]}
+            >
+              <Dynamic component={STATUS_ICON[status()]} />
             </span>
           </div>
-          <TagEditor tags={tags()} onChange={(t) => session?.setTags(t)} />
           <Show when={status() === "conflict"}>
             <div class="flex flex-wrap items-center gap-2 rounded-md border border-destructive p-2 text-sm">
               <span class="flex-1">這則筆記在其他地方被修改過。</span>
