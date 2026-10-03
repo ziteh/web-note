@@ -1,5 +1,6 @@
 import type { NoteMeta } from "~/api/client";
 
+export const DEFAULT_NOTEBOOK = "Inbox";
 export const UNTITLED = "未命名";
 
 export function noteTitle(note: Pick<NoteMeta, "title">) {

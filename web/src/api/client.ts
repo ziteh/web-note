@@ -34,3 +34,22 @@ export async function unwrap<T>(
   }
   return data as T;
 }
+
+export type AssetUploaded = components["schemas"]["AssetUploaded"];
+
+/** Sends raw image bytes; the generated client has no typed raw-body support. */
+export async function uploadAsset(file: Blob): Promise<AssetUploaded> {
+  const response = await fetch("/api/assets", { method: "POST", body: file });
+  if (!response.ok) {
+    const body = (await response.json().catch(() => ({}))) as {
+      code?: string;
+      message?: string;
+    };
+    throw new ApiError(
+      response.status,
+      body.code ?? "unknown",
+      body.message ?? response.statusText,
+    );
+  }
+  return response.json();
+}

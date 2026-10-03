@@ -1,9 +1,11 @@
-import { A } from "@solidjs/router";
+import { A, useNavigate } from "@solidjs/router";
 import { createEffect, createSignal, For, on, Show } from "solid-js";
+import { toast } from "solid-sonner";
 import type { NoteMeta } from "~/api/client";
-import { useNotes, useStatus } from "~/api/queries";
+import { api, unwrap } from "~/api/client";
+import { useNotes, useRefreshNotes, useStatus } from "~/api/queries";
 import { useFilters } from "~/lib/filters";
-import { formatDate, noteTitle } from "~/lib/note";
+import { DEFAULT_NOTEBOOK, formatDate, noteTitle } from "~/lib/note";
 import { type Sort, setSort, sort, sortNotes } from "~/lib/sort";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -42,6 +44,8 @@ export default function NoteList(props: Props) {
   const { filters, update } = useFilters();
   const notes = useNotes(filters);
   const status = useStatus();
+  const navigate = useNavigate();
+  const refresh = useRefreshNotes();
   const [query, setQuery] = createSignal(filters().q ?? "");
 
   createEffect(
@@ -57,6 +61,25 @@ export default function NoteList(props: Props) {
       { defer: true },
     ),
   );
+
+  /** New notes start empty, in the current notebook filter if there is one. */
+  const create = async () => {
+    try {
+      const created = await unwrap(
+        api.POST("/api/notes", {
+          body: {
+            notebook: filters().notebook ?? DEFAULT_NOTEBOOK,
+            body: "",
+            tags: filters().tags,
+          },
+        }),
+      );
+      await refresh();
+      navigate(`/n/${created.meta.id}${location.search}`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    }
+  };
 
   const sorted = () => sortNotes(notes.data ?? [], sort());
   const selectedSort = () =>
@@ -74,6 +97,14 @@ export default function NoteList(props: Props) {
           <TextField class="flex-1" value={query()} onChange={setQuery}>
             <TextFieldInput type="search" placeholder="搜尋標題與內文" />
           </TextField>
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label="新增筆記"
+            onClick={create}
+          >
+            +
+          </Button>
         </div>
         <Select
           options={SORT_OPTIONS}

@@ -21,6 +21,14 @@ export function useNotes(filters: Accessor<Filters>) {
   }));
 }
 
+/** Unfiltered list backing wikilink titles and completion. */
+export function useAllNotes() {
+  return createQuery(() => ({
+    queryKey: ["notes", "all"],
+    queryFn: () => unwrap(api.GET("/api/notes")),
+  }));
+}
+
 export function useNote(id: Accessor<string | undefined>) {
   return createQuery(() => ({
     queryKey: ["note", id()],
@@ -63,4 +71,15 @@ export function useRescan() {
     await unwrap(api.POST("/api/system/rescan"));
     await client.invalidateQueries();
   };
+}
+
+/** Refreshes everything that derives from note contents after a change. */
+export function useRefreshNotes() {
+  const client = useQueryClient();
+  return () =>
+    Promise.all(
+      ["notes", "tags", "notebooks"].map((key) =>
+        client.invalidateQueries({ queryKey: [key] }),
+      ),
+    );
 }
