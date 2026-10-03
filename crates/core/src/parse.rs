@@ -90,7 +90,10 @@ mod tests {
 
     #[test]
     fn title_is_first_h1() {
-        assert_eq!(title("intro\n\n# Hello\n\n# Second\n").as_deref(), Some("Hello"));
+        assert_eq!(
+            title("intro\n\n# Hello\n\n# Second\n").as_deref(),
+            Some("Hello")
+        );
     }
 
     #[test]
@@ -107,7 +110,10 @@ mod tests {
 
     #[test]
     fn title_keeps_inline_code_text() {
-        assert_eq!(title("# Use `cargo` now\n").as_deref(), Some("Use cargo now"));
+        assert_eq!(
+            title("# Use `cargo` now\n").as_deref(),
+            Some("Use cargo now")
+        );
     }
 
     #[test]
@@ -116,8 +122,14 @@ mod tests {
         assert_eq!(
             links,
             vec![
-                WikiLink { id: "abc123".into(), alias: Some("My Note".into()) },
-                WikiLink { id: "def456".into(), alias: None },
+                WikiLink {
+                    id: "abc123".into(),
+                    alias: Some("My Note".into())
+                },
+                WikiLink {
+                    id: "def456".into(),
+                    alias: None
+                },
             ]
         );
     }

@@ -4,6 +4,8 @@ use std::path::PathBuf;
 pub enum Error {
     #[error("frontmatter is corrupt: {0}")]
     CorruptFrontmatter(String),
+    #[error("database error: {0}")]
+    Db(#[from] rusqlite::Error),
     #[error("io error at {}: {source}", path.display())]
     Io {
         path: PathBuf,

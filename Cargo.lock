@@ -1677,7 +1677,6 @@ dependencies = [
  "tempfile",
  "thiserror",
  "time",
- "tokio-rusqlite",
  "unicode-normalization",
 ]
 
@@ -1693,6 +1692,7 @@ dependencies = [
  "serde_json",
  "thiserror",
  "tokio",
+ "tokio-rusqlite",
  "utoipa",
  "utoipa-axum",
  "utoipa-swagger-ui",

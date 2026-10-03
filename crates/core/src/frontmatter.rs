@@ -74,12 +74,11 @@ impl Document {
             return Ok(doc);
         };
 
-        let (yaml, body) = split_closing(rest)
-            .ok_or_else(|| corrupt("missing closing delimiter"))?;
+        let (yaml, body) =
+            split_closing(rest).ok_or_else(|| corrupt("missing closing delimiter"))?;
         doc.body = body.to_string();
 
-        let value: Value =
-            serde_yaml_ng::from_str(yaml).map_err(|e| corrupt(e.to_string()))?;
+        let value: Value = serde_yaml_ng::from_str(yaml).map_err(|e| corrupt(e.to_string()))?;
         let mut map = match value {
             Value::Mapping(m) => m,
             Value::Null => Mapping::new(),
@@ -121,8 +120,8 @@ impl Document {
             map.insert(k.clone(), v.clone());
         }
 
-        let yaml = serde_yaml_ng::to_string(&Value::Mapping(map))
-            .map_err(|e| corrupt(e.to_string()))?;
+        let yaml =
+            serde_yaml_ng::to_string(&Value::Mapping(map)).map_err(|e| corrupt(e.to_string()))?;
         let out = format!("{DELIMITER}\n{yaml}{DELIMITER}\n{}", self.body);
         Ok(match self.line_ending {
             LineEnding::Lf => out,
@@ -187,7 +186,7 @@ fn tags_field(v: Value) -> Result<Vec<String>> {
     Ok(tags)
 }
 
-fn format_time(t: OffsetDateTime) -> Result<String> {
+pub fn format_time(t: OffsetDateTime) -> Result<String> {
     t.format(&Rfc3339).map_err(|e| corrupt(e.to_string()))
 }
 
