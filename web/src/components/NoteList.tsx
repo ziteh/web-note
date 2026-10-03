@@ -72,7 +72,7 @@ export default function NoteList(props: Props) {
           body: {
             notebook: filters().notebook ?? DEFAULT_NOTEBOOK,
             body: "",
-            tags: filters().tags,
+            tags: [],
           },
         }),
       );
