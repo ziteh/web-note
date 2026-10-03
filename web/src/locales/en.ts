@@ -64,4 +64,5 @@ export default {
   deleteNotebook: "Delete notebook",
   deleteNotebookConfirm:
     "Delete notebook {name}? Only empty notebooks can be deleted.",
+  renameTag: "Rename tag",
 };

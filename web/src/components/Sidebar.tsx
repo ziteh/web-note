@@ -34,6 +34,7 @@ import { TextField, TextFieldInput } from "./ui/text-field";
 type Dialog =
   | { kind: "create" }
   | { kind: "rename"; name: string }
+  | { kind: "renameTag"; name: string }
   | { kind: "delete"; name: string };
 
 export default function Sidebar(props: { onPick?: () => void }) {
@@ -60,7 +61,9 @@ export default function Sidebar(props: { onPick?: () => void }) {
   };
 
   const openDialog = (next: Dialog) => {
-    setDraft(next.kind === "rename" ? next.name : "");
+    setDraft(
+      next.kind === "rename" || next.kind === "renameTag" ? next.name : "",
+    );
     setDialog(next);
   };
 
@@ -78,6 +81,23 @@ export default function Sidebar(props: { onPick?: () => void }) {
     const current = dialog();
     const name = draft().trim();
     if (!current || current.kind === "delete" || !name) return;
+    if (current.kind === "renameTag") {
+      const from = current.name;
+      void run(async () => {
+        await unwrap(
+          api.POST("/api/tags/rename", { body: { from, to: name } }),
+        );
+        const active = filters().tags;
+        if (active.includes(from)) {
+          update({
+            tags: [
+              ...new Set(active.map((tag) => (tag === from ? name : tag))),
+            ],
+          });
+        }
+      });
+      return;
+    }
     if (current.kind === "create") {
       void run(() => unwrap(api.POST("/api/notebooks", { body: { name } })));
       return;
@@ -162,14 +182,28 @@ export default function Sidebar(props: { onPick?: () => void }) {
         </h2>
         <For each={tags.data}>
           {(tag) => (
-            <Button
-              variant={filters().tags.includes(tag.tag) ? "secondary" : "ghost"}
-              class="justify-between"
-              onClick={() => toggleTag(tag.tag)}
-            >
-              <span class="truncate">{tag.tag}</span>
-              <span class="text-xs text-muted-foreground">{tag.count}</span>
-            </Button>
+            <ContextMenu>
+              <ContextMenuTrigger
+                as={Button}
+                variant={
+                  filters().tags.includes(tag.tag) ? "secondary" : "ghost"
+                }
+                class="justify-between"
+                onClick={() => toggleTag(tag.tag)}
+              >
+                <span class="truncate">{tag.tag}</span>
+                <span class="text-xs text-muted-foreground">{tag.count}</span>
+              </ContextMenuTrigger>
+              <ContextMenuContent>
+                <ContextMenuItem
+                  onSelect={() =>
+                    openDialog({ kind: "renameTag", name: tag.tag })
+                  }
+                >
+                  {t("rename")}
+                </ContextMenuItem>
+              </ContextMenuContent>
+            </ContextMenu>
           )}
         </For>
       </section>
@@ -243,7 +277,9 @@ export default function Sidebar(props: { onPick?: () => void }) {
                 <AlertDialogTitle>
                   {current?.kind === "rename"
                     ? t("renameNotebook")
-                    : t("newNotebook")}
+                    : current?.kind === "renameTag"
+                      ? t("renameTag")
+                      : t("newNotebook")}
                 </AlertDialogTitle>
                 <TextField value={draft()} onChange={setDraft}>
                   <TextFieldInput
@@ -261,7 +297,7 @@ export default function Sidebar(props: { onPick?: () => void }) {
                     {t("cancel")}
                   </Button>
                   <Button disabled={!draft().trim()} onClick={submitName}>
-                    {current?.kind === "rename" ? t("rename") : t("create")}
+                    {current?.kind === "create" ? t("create") : t("rename")}
                   </Button>
                 </div>
               </>

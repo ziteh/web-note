@@ -188,6 +188,33 @@ async fn notebook_errors_map_to_codes() {
 }
 
 #[tokio::test]
+async fn tags_rename_merges_and_validates() {
+    let c = Client::new();
+    c.create("Inbox", "# A\n", &["old"]).await;
+    c.create("Inbox", "# B\n", &["new"]).await;
+
+    let (status, result) = c
+        .post("/api/tags/rename", json!({"from": "old", "to": "new"}))
+        .await;
+    assert_eq!((status, &result["affected"]), (StatusCode::OK, &json!(1)));
+    let (_, tags) = c.get("/api/tags").await;
+    assert_eq!(tags, json!([{"tag": "new", "count": 2}]));
+
+    let (status, err) = c
+        .post("/api/tags/rename", json!({"from": "new", "to": " "}))
+        .await;
+    assert_eq!(
+        (status, err["code"].as_str()),
+        (StatusCode::BAD_REQUEST, Some("invalid_name"))
+    );
+
+    let (status, result) = c
+        .post("/api/tags/rename", json!({"from": "ghost", "to": "x"}))
+        .await;
+    assert_eq!((status, &result["affected"]), (StatusCode::OK, &json!(0)));
+}
+
+#[tokio::test]
 async fn tags_rename_and_assets() {
     let c = Client::new();
     c.create("Inbox", "# A\n", &["old"]).await;

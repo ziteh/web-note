@@ -247,6 +247,58 @@ fn notebook_names_are_validated() {
 }
 
 #[test]
+fn rename_tag_persists_to_files_and_leaves_others_untouched() {
+    let (dir, notes) = open();
+    let a = notes
+        .create(
+            DEFAULT_NOTEBOOK,
+            "# A\n\nbody",
+            &["old".into(), "keep".into()],
+        )
+        .unwrap();
+    let b = notes
+        .create(DEFAULT_NOTEBOOK, "# B\n", &["other".into()])
+        .unwrap();
+
+    assert_eq!(notes.rename_tag("old", "New").unwrap(), 1);
+
+    let renamed = notes.get(&a.meta.id).unwrap();
+    assert!(renamed.meta.tags.contains(&"new".to_string()));
+    assert!(!renamed.meta.tags.contains(&"old".to_string()));
+    assert!(renamed.body.contains("body"));
+    assert_eq!(notes.get(&b.meta.id).unwrap().version, b.version);
+
+    notes.rescan().unwrap();
+    assert_eq!(
+        notes.tags().unwrap(),
+        vec![("keep".into(), 1), ("new".into(), 1), ("other".into(), 1)]
+    );
+    assert!(dir.path().join(&renamed.meta.path).is_file());
+}
+
+#[test]
+fn rename_tag_merge_does_not_duplicate_on_a_note_with_both() {
+    let (_dir, notes) = open();
+    let n = notes
+        .create(DEFAULT_NOTEBOOK, "# A\n", &["old".into(), "new".into()])
+        .unwrap();
+
+    assert_eq!(notes.rename_tag("old", "new").unwrap(), 1);
+    assert_eq!(notes.get(&n.meta.id).unwrap().meta.tags, vec!["new"]);
+}
+
+#[test]
+fn rename_missing_tag_is_a_noop() {
+    let (_dir, notes) = open();
+    notes
+        .create(DEFAULT_NOTEBOOK, "# A\n", &["a".into()])
+        .unwrap();
+
+    assert_eq!(notes.rename_tag("ghost", "b").unwrap(), 0);
+    assert_eq!(notes.tags().unwrap(), vec![("a".into(), 1)]);
+}
+
+#[test]
 fn rename_and_merge_tags() {
     let (_dir, notes) = open();
     notes
