@@ -11,9 +11,7 @@
   "paths": {
     "/api/assets": {
       "post": {
-        "tags": [
-          "assets"
-        ],
+        "tags": ["assets"],
         "summary": "Raw image bytes as the request body.",
         "operationId": "upload_asset",
         "requestBody": {
@@ -64,9 +62,7 @@
     },
     "/api/assets/{name}": {
       "get": {
-        "tags": [
-          "assets"
-        ],
+        "tags": ["assets"],
         "operationId": "get_asset",
         "parameters": [
           {
@@ -107,9 +103,7 @@
     },
     "/api/notebooks": {
       "get": {
-        "tags": [
-          "notebooks"
-        ],
+        "tags": ["notebooks"],
         "operationId": "list_notebooks",
         "responses": {
           "200": {
@@ -127,9 +121,7 @@
         }
       },
       "post": {
-        "tags": [
-          "notebooks"
-        ],
+        "tags": ["notebooks"],
         "operationId": "create_notebook",
         "requestBody": {
           "content": {
@@ -166,9 +158,7 @@
     },
     "/api/notebooks/{name}": {
       "delete": {
-        "tags": [
-          "notebooks"
-        ],
+        "tags": ["notebooks"],
         "operationId": "delete_notebook",
         "parameters": [
           {
@@ -203,9 +193,7 @@
         }
       },
       "patch": {
-        "tags": [
-          "notebooks"
-        ],
+        "tags": ["notebooks"],
         "operationId": "rename_notebook",
         "parameters": [
           {
@@ -252,9 +240,7 @@
     },
     "/api/notes": {
       "get": {
-        "tags": [
-          "notes"
-        ],
+        "tags": ["notes"],
         "operationId": "list_notes",
         "parameters": [
           {
@@ -262,10 +248,7 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": ["string", "null"]
             }
           },
           {
@@ -286,10 +269,7 @@
             "description": "Full-text query over title and body.",
             "required": false,
             "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": ["string", "null"]
             }
           }
         ],
@@ -309,9 +289,7 @@
         }
       },
       "post": {
-        "tags": [
-          "notes"
-        ],
+        "tags": ["notes"],
         "operationId": "create_note",
         "requestBody": {
           "content": {
@@ -347,9 +325,7 @@
     },
     "/api/notes/{id}": {
       "get": {
-        "tags": [
-          "notes"
-        ],
+        "tags": ["notes"],
         "operationId": "get_note",
         "parameters": [
           {
@@ -383,9 +359,7 @@
         }
       },
       "put": {
-        "tags": [
-          "notes"
-        ],
+        "tags": ["notes"],
         "operationId": "save_note",
         "parameters": [
           {
@@ -438,9 +412,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "notes"
-        ],
+        "tags": ["notes"],
         "operationId": "delete_note",
         "parameters": [
           {
@@ -468,9 +440,7 @@
     },
     "/api/notes/{id}/backlinks": {
       "get": {
-        "tags": [
-          "notes"
-        ],
+        "tags": ["notes"],
         "operationId": "backlinks",
         "parameters": [
           {
@@ -500,9 +470,7 @@
     },
     "/api/notes/{id}/move": {
       "post": {
-        "tags": [
-          "notes"
-        ],
+        "tags": ["notes"],
         "operationId": "move_note",
         "parameters": [
           {
@@ -548,9 +516,7 @@
     },
     "/api/system/duplicates/dismiss": {
       "post": {
-        "tags": [
-          "system"
-        ],
+        "tags": ["system"],
         "operationId": "dismiss_duplicates",
         "responses": {
           "204": {}
@@ -559,9 +525,7 @@
     },
     "/api/system/rescan": {
       "post": {
-        "tags": [
-          "system"
-        ],
+        "tags": ["system"],
         "operationId": "rescan",
         "responses": {
           "200": {
@@ -578,9 +542,7 @@
     },
     "/api/system/status": {
       "get": {
-        "tags": [
-          "system"
-        ],
+        "tags": ["system"],
         "operationId": "status",
         "responses": {
           "200": {
@@ -597,9 +559,7 @@
     },
     "/api/tags": {
       "get": {
-        "tags": [
-          "tags"
-        ],
+        "tags": ["tags"],
         "summary": "Counts double as the preview of how many notes a rename or merge touches.",
         "operationId": "list_tags",
         "responses": {
@@ -620,9 +580,7 @@
     },
     "/api/tags/rename": {
       "post": {
-        "tags": [
-          "tags"
-        ],
+        "tags": ["tags"],
         "summary": "Rewrites every affected note. Merges when the target tag already exists.",
         "operationId": "rename_tag",
         "requestBody": {
@@ -659,9 +617,7 @@
     },
     "/api/trash": {
       "get": {
-        "tags": [
-          "trash"
-        ],
+        "tags": ["trash"],
         "operationId": "list_trash",
         "responses": {
           "200": {
@@ -679,9 +635,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "trash"
-        ],
+        "tags": ["trash"],
         "operationId": "empty_trash",
         "responses": {
           "204": {}
@@ -690,9 +644,7 @@
     },
     "/api/trash/{key}": {
       "delete": {
-        "tags": [
-          "trash"
-        ],
+        "tags": ["trash"],
         "operationId": "purge_item",
         "parameters": [
           {
@@ -720,9 +672,7 @@
     },
     "/api/trash/{key}/restore": {
       "post": {
-        "tags": [
-          "trash"
-        ],
+        "tags": ["trash"],
         "operationId": "restore_item",
         "parameters": [
           {
@@ -761,10 +711,7 @@
     "schemas": {
       "AssetUploaded": {
         "type": "object",
-        "required": [
-          "name",
-          "path"
-        ],
+        "required": ["name", "path"],
         "properties": {
           "name": {
             "type": "string"
@@ -777,10 +724,7 @@
       },
       "CreateNote": {
         "type": "object",
-        "required": [
-          "notebook",
-          "body"
-        ],
+        "required": ["notebook", "body"],
         "properties": {
           "body": {
             "type": "string"
@@ -798,10 +742,7 @@
       },
       "Duplicate": {
         "type": "object",
-        "required": [
-          "path",
-          "new_id"
-        ],
+        "required": ["path", "new_id"],
         "properties": {
           "new_id": {
             "type": "string"
@@ -813,10 +754,7 @@
       },
       "ErrorBody": {
         "type": "object",
-        "required": [
-          "code",
-          "message"
-        ],
+        "required": ["code", "message"],
         "properties": {
           "code": {
             "type": "string"
@@ -828,10 +766,7 @@
       },
       "LoadError": {
         "type": "object",
-        "required": [
-          "path",
-          "message"
-        ],
+        "required": ["path", "message"],
         "properties": {
           "message": {
             "type": "string"
@@ -843,9 +778,7 @@
       },
       "MoveNote": {
         "type": "object",
-        "required": [
-          "notebook"
-        ],
+        "required": ["notebook"],
         "properties": {
           "notebook": {
             "type": "string"
@@ -854,11 +787,7 @@
       },
       "Note": {
         "type": "object",
-        "required": [
-          "meta",
-          "body",
-          "version"
-        ],
+        "required": ["meta", "body", "version"],
         "properties": {
           "body": {
             "type": "string"
@@ -874,19 +803,10 @@
       },
       "NoteMeta": {
         "type": "object",
-        "required": [
-          "id",
-          "path",
-          "notebook",
-          "summary",
-          "tags"
-        ],
+        "required": ["id", "path", "notebook", "summary", "tags"],
         "properties": {
           "created": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "id": {
             "type": "string"
@@ -917,25 +837,16 @@
             }
           },
           "title": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "updated": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           }
         }
       },
       "Notebook": {
         "type": "object",
-        "required": [
-          "name",
-          "count"
-        ],
+        "required": ["name", "count"],
         "properties": {
           "count": {
             "type": "integer",
@@ -948,9 +859,7 @@
       },
       "NotebookName": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string"
@@ -959,10 +868,7 @@
       },
       "RenameTag": {
         "type": "object",
-        "required": [
-          "from",
-          "to"
-        ],
+        "required": ["from", "to"],
         "properties": {
           "from": {
             "type": "string"
@@ -974,9 +880,7 @@
       },
       "RenameTagResult": {
         "type": "object",
-        "required": [
-          "affected"
-        ],
+        "required": ["affected"],
         "properties": {
           "affected": {
             "type": "integer",
@@ -986,10 +890,7 @@
       },
       "SaveNote": {
         "type": "object",
-        "required": [
-          "body",
-          "base_version"
-        ],
+        "required": ["body", "base_version"],
         "properties": {
           "base_version": {
             "type": "string"
@@ -1011,11 +912,7 @@
       },
       "Snippet": {
         "type": "object",
-        "required": [
-          "text",
-          "start",
-          "end"
-        ],
+        "required": ["text", "start", "end"],
         "properties": {
           "end": {
             "type": "integer",
@@ -1033,10 +930,7 @@
       },
       "Status": {
         "type": "object",
-        "required": [
-          "errors",
-          "duplicates"
-        ],
+        "required": ["errors", "duplicates"],
         "properties": {
           "duplicates": {
             "type": "array",
@@ -1054,10 +948,7 @@
       },
       "Tag": {
         "type": "object",
-        "required": [
-          "tag",
-          "count"
-        ],
+        "required": ["tag", "count"],
         "properties": {
           "count": {
             "type": "integer",
@@ -1070,17 +961,10 @@
       },
       "TrashItem": {
         "type": "object",
-        "required": [
-          "key",
-          "notebook",
-          "trashed_at_millis"
-        ],
+        "required": ["key", "notebook", "trashed_at_millis"],
         "properties": {
           "id": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "key": {
             "type": "string"
@@ -1089,10 +973,7 @@
             "type": "string"
           },
           "title": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "trashed_at_millis": {
             "type": "integer",

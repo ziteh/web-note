@@ -1,0 +1,14 @@
+pre-commit:
+  parallel: true
+  commands:
+    rust-fmt:
+      run: cargo fmt --all
+      stage_fixed: true
+
+    rust-lint:
+      run: cargo clippy --all-targets --all-features -- -D warnings
+
+    biomde:
+      run: pnpx @biomejs/biome check --write --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
+      glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc,css}"
+      stage_fixed: true
