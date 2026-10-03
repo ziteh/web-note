@@ -6,7 +6,7 @@ import { drawSelection, EditorView, keymap } from "@codemirror/view";
 import { codeBackground } from "./codebackground";
 import { imageSupport } from "./image";
 import { taskCheckboxes } from "./task";
-import { theme } from "./theme";
+import { faintMarks, theme } from "./theme";
 import { type NoteLookup, wikilinkCompletion, wikilinks } from "./wikilink";
 
 interface Options {
@@ -21,7 +21,11 @@ export function createExtensions(options: Options): Extension[] {
     drawSelection(),
     EditorView.lineWrapping,
     keymap.of([...defaultKeymap, ...historyKeymap]),
-    markdown({ base: markdownLanguage, codeLanguages: languages }),
+    markdown({
+      base: markdownLanguage,
+      codeLanguages: languages,
+      extensions: { props: [faintMarks] },
+    }),
     theme,
     wikilinks(options.lookup, options.onOpenNote),
     wikilinkCompletion(options.lookup),

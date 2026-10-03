@@ -4,7 +4,15 @@ import {
   syntaxHighlighting,
 } from "@codemirror/language";
 import { EditorView } from "@codemirror/view";
-import { tags as t } from "@lezer/highlight";
+import { styleTags, Tag, tags as t } from "@lezer/highlight";
+
+const faintMark = Tag.define();
+
+/** Dims the markers of inline code and emphasis, and whole images. */
+export const faintMarks = styleTags({
+  "CodeMark EmphasisMark StrikethroughMark": faintMark,
+  "Image/...": faintMark,
+});
 
 const markdownStyle = HighlightStyle.define([
   { tag: t.heading1, fontSize: "1.6em", fontWeight: "700" },
@@ -17,6 +25,7 @@ const markdownStyle = HighlightStyle.define([
   { tag: t.quote, color: "hsl(var(--muted-foreground))" },
   { tag: t.processingInstruction, color: "hsl(var(--muted-foreground))" },
   { tag: [t.link, t.url], color: "hsl(var(--primary))" },
+  { tag: faintMark, color: "hsl(var(--muted-foreground) / 0.5)" },
   {
     tag: [t.keyword, t.operatorKeyword, t.modifier],
     color: "hsl(var(--syntax-keyword))",
