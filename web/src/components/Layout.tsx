@@ -36,7 +36,10 @@ export default function Layout() {
             <NoteList selectedId={params.id} />
           </ResizablePanel>
           <ResizableHandle />
-          <ResizablePanel minSize={MIN_PANEL_SIZE}>
+          <ResizablePanel
+            initialSize={1 - SIDEBAR_SIZE - LIST_SIZE}
+            minSize={MIN_PANEL_SIZE}
+          >
             <NotePane id={params.id} />
           </ResizablePanel>
         </Resizable>
