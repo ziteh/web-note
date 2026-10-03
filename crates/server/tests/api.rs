@@ -298,9 +298,10 @@ async fn rescan_reports_corrupt_files() {
 fn committed_openapi_is_up_to_date() {
     let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../../openapi.json");
     let committed = fs::read_to_string(path).expect("openapi.json is committed");
+    let committed: Value = serde_json::from_str(&committed).unwrap();
+    let current: Value = serde_json::from_str(&web_note_server::openapi_json()).unwrap();
     assert_eq!(
-        committed.trim_end(),
-        web_note_server::openapi_json(),
+        committed, current,
         "regenerate with: cargo run -p web-note-server -- --openapi > openapi.json"
     );
 }
