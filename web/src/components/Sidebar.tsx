@@ -1,10 +1,11 @@
 import { A } from "@solidjs/router";
 import { For, Show } from "solid-js";
 import { useNotebooks, useStatus, useTags } from "~/api/queries";
+import MoonIcon from "~/assets/moon.svg";
 import SunIcon from "~/assets/sun.svg";
 import TrashIcon from "~/assets/trash.svg";
 import { useFilters } from "~/lib/filters";
-import { toggleTheme } from "~/lib/theme";
+import { isDark, toggleTheme } from "~/lib/theme";
 import { Button, buttonVariants } from "./ui/button";
 
 export default function Sidebar(props: { onPick?: () => void }) {
@@ -82,7 +83,7 @@ export default function Sidebar(props: { onPick?: () => void }) {
           onClick={toggleTheme}
           aria-label="切換主題"
         >
-          <SunIcon />
+          {isDark() ? <MoonIcon /> : <SunIcon />}
         </Button>
       </div>
 

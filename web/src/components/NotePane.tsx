@@ -20,9 +20,9 @@ import {
   useRefreshNotes,
 } from "~/api/queries";
 import CheckIcon from "~/assets/check.svg";
-import CrossIcon from "~/assets/cross.svg";
-import ExclamationIcon from "~/assets/exclamation.svg";
 import UpdateIcon from "~/assets/update.svg";
+import WarningIcon from "~/assets/warning.svg";
+import XIcon from "~/assets/x.svg";
 import { createExtensions } from "~/editor/extensions";
 import { EditorSession, type SaveStatus } from "~/editor/session";
 import { lookupChanged } from "~/editor/wikilink";
@@ -39,8 +39,8 @@ const STATUS_ICON: Record<SaveStatus, Component> = {
   saved: CheckIcon,
   dirty: UpdateIcon,
   saving: UpdateIcon,
-  conflict: ExclamationIcon,
-  error: CrossIcon,
+  conflict: WarningIcon,
+  error: XIcon,
 };
 
 const STATUS_LABEL: Record<SaveStatus, string> = {
@@ -148,7 +148,7 @@ export default function NotePane(props: Props) {
               <TagEditor tags={tags()} onChange={(t) => session?.setTags(t)} />
             </div>
             <span
-              class="inline-flex shrink-0 text-muted-foreground"
+              class="inline-flex size-4 shrink-0 text-muted-foreground [&>svg]:size-full"
               classList={{
                 "animate-spin": status() === "saving",
                 "text-destructive":
