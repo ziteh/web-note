@@ -65,7 +65,9 @@ const base = EditorView.theme({
   "&": { height: "100%", backgroundColor: "transparent" },
   "&.cm-focused": { outline: "none" },
   ".cm-scroller": { fontFamily: "inherit", lineHeight: "1.7" },
-  ".cm-content": { padding: "1rem" },
+  // 水平 padding 放在 line 而非 content,否則選取範圍的左緣會與文字錯位
+  ".cm-content": { padding: "1rem 0" },
+  ".cm-line": { padding: "0 1rem" },
   ".cm-gutters": {
     backgroundColor: "transparent",
     border: "none",
