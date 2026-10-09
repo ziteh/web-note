@@ -40,6 +40,8 @@ export default {
   statusError: "Save failed",
   noteInfo: "Note info",
   formatNote: "Format note",
+  undo: "Undo",
+  redo: "Redo",
   created: "Created",
   updated: "Updated",
   backlinks: "Backlinks ({count})",

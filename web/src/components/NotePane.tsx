@@ -1,3 +1,4 @@
+import { redo, undo } from "@codemirror/commands";
 import { A, useNavigate } from "@solidjs/router";
 import { useQueryClient } from "@tanstack/solid-query";
 import {
@@ -19,6 +20,8 @@ import {
   useNote,
   useRefreshNotes,
 } from "~/api/queries";
+import ArrowUndoIcon from "~/assets/arrow-u-up-left.svg";
+import ArrowRedoIcon from "~/assets/arrow-u-up-right.svg";
 import CheckIcon from "~/assets/check.svg";
 import InfoIcon from "~/assets/info.svg";
 import MagicWandIcon from "~/assets/magic-wand.svg";
@@ -138,6 +141,12 @@ export default function NotePane(props: Props) {
     }
   };
 
+  const run = (command: typeof undo) => {
+    if (!session) return;
+    command(session.editorView);
+    session.editorView.focus();
+  };
+
   const formatNote = async () => {
     if (!session) return;
     const body = session.editorView.state.doc.toString();
@@ -178,6 +187,26 @@ export default function NotePane(props: Props) {
             >
               <Dynamic component={STATUS_ICON[status()]} />
             </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              class="size-6 shrink-0 [&>svg]:size-4"
+              aria-label={t("undo")}
+              title={t("undo")}
+              onClick={() => run(undo)}
+            >
+              <ArrowUndoIcon />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              class="size-6 shrink-0 [&>svg]:size-4"
+              aria-label={t("redo")}
+              title={t("redo")}
+              onClick={() => run(redo)}
+            >
+              <ArrowRedoIcon />
+            </Button>
             <Button
               variant="ghost"
               size="icon"

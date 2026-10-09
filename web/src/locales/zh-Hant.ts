@@ -42,6 +42,8 @@ const zhHant: Record<keyof typeof en, string> = {
   statusError: "儲存失敗",
   noteInfo: "筆記資訊",
   formatNote: "格式化筆記",
+  undo: "復原",
+  redo: "重做",
   created: "建立",
   updated: "更新",
   backlinks: "反向連結（{count}）",
