@@ -133,6 +133,16 @@ async fn note_lifecycle_with_links_and_conflict() {
 }
 
 #[tokio::test]
+async fn format_returns_fixed_body() {
+    let c = Client::new();
+    let (status, res) = c
+        .post("/api/format", json!({"body": "# T\ntext\n* [[a|b]]\n"}))
+        .await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(res["body"], "# T\n\ntext\n\n- [[a|b]]\n");
+}
+
+#[tokio::test]
 async fn list_filters_and_search() {
     let c = Client::new();
     c.post("/api/notebooks", json!({"name": "Work"})).await;

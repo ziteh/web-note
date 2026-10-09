@@ -41,6 +41,7 @@ const zhHant: Record<keyof typeof en, string> = {
   statusConflict: "有衝突",
   statusError: "儲存失敗",
   noteInfo: "筆記資訊",
+  formatNote: "格式化筆記",
   created: "建立",
   updated: "更新",
   backlinks: "反向連結（{count}）",

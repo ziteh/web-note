@@ -115,6 +115,13 @@ export class EditorSession {
     }
   }
 
+  /** Replaces the whole document as one transaction so undo restores it. */
+  replaceDoc(text: string) {
+    const { doc } = this.view.state;
+    if (doc.toString() === text) return;
+    this.view.dispatch({ changes: { from: 0, to: doc.length, insert: text } });
+  }
+
   setTags(tags: string[]) {
     const entry = this.current();
     if (!entry) return;

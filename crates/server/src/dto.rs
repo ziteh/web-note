@@ -80,6 +80,11 @@ pub struct SaveNote {
     pub force: bool,
 }
 
+#[derive(Deserialize, Serialize, ToSchema)]
+pub struct FormatBody {
+    pub body: String,
+}
+
 #[derive(Deserialize, ToSchema)]
 pub struct MoveNote {
     pub notebook: String,

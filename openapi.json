@@ -140,6 +140,33 @@
         }
       }
     },
+    "/api/format": {
+      "post": {
+        "tags": ["notes"],
+        "operationId": "format_body",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FormatBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FormatBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/notebooks": {
       "get": {
         "tags": ["notebooks"],
@@ -799,6 +826,15 @@
             "type": "string"
           },
           "message": {
+            "type": "string"
+          }
+        }
+      },
+      "FormatBody": {
+        "type": "object",
+        "required": ["body"],
+        "properties": {
+          "body": {
             "type": "string"
           }
         }

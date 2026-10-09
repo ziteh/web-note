@@ -71,6 +71,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/format": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["format_body"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/notebooks": {
         parameters: {
             query?: never;
@@ -319,6 +335,9 @@ export interface components {
             code: string;
             message: string;
         };
+        FormatBody: {
+            body: string;
+        };
         LoadError: {
             message: string;
             path: string;
@@ -502,6 +521,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    format_body: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FormatBody"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FormatBody"];
                 };
             };
         };

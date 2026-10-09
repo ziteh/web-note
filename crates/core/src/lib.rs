@@ -1,4 +1,5 @@
 pub mod error;
+pub mod format;
 pub mod frontmatter;
 pub mod id;
 pub mod index;

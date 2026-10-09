@@ -12,7 +12,7 @@ import {
 } from "solid-js";
 import { Dynamic } from "solid-js/web";
 import { toast } from "solid-sonner";
-import type { Note } from "~/api/client";
+import { api, type Note, unwrap } from "~/api/client";
 import {
   useAllNotes,
   useBacklinks,
@@ -21,6 +21,7 @@ import {
 } from "~/api/queries";
 import CheckIcon from "~/assets/check.svg";
 import InfoIcon from "~/assets/info.svg";
+import MagicWandIcon from "~/assets/magic-wand.svg";
 import UpdateIcon from "~/assets/update.svg";
 import WarningIcon from "~/assets/warning.svg";
 import XIcon from "~/assets/x.svg";
@@ -137,6 +138,20 @@ export default function NotePane(props: Props) {
     }
   };
 
+  const formatNote = async () => {
+    if (!session) return;
+    const body = session.editorView.state.doc.toString();
+    try {
+      const res = await unwrap(api.POST("/api/format", { body: { body } }));
+      // Typing during the request would be overwritten by a stale result.
+      if (session.editorView.state.doc.toString() === body) {
+        session.replaceDoc(res.body);
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    }
+  };
+
   return (
     <div class="flex h-full flex-col">
       <Show when={props.id}>
@@ -163,6 +178,16 @@ export default function NotePane(props: Props) {
             >
               <Dynamic component={STATUS_ICON[status()]} />
             </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              class="size-6 shrink-0 [&>svg]:size-4"
+              aria-label={t("formatNote")}
+              title={t("formatNote")}
+              onClick={formatNote}
+            >
+              <MagicWandIcon />
+            </Button>
             <Button
               variant="ghost"
               size="icon"

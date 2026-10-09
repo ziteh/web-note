@@ -39,6 +39,7 @@ export default {
   statusConflict: "Conflict",
   statusError: "Save failed",
   noteInfo: "Note info",
+  formatNote: "Format note",
   created: "Created",
   updated: "Updated",
   backlinks: "Backlinks ({count})",

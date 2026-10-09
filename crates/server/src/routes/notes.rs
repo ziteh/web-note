@@ -7,13 +7,13 @@ use axum_extra::extract::Query;
 use serde::Deserialize;
 use utoipa::IntoParams;
 use utoipa_axum::{router::OpenApiRouter, routes};
-use web_note_core::index;
+use web_note_core::{format, index};
 
 use super::run;
 use crate::{
     AppState,
     api_error::{ApiError, ErrorBody},
-    dto::{CreateNote, MoveNote, Note, NoteMeta, SaveNote},
+    dto::{CreateNote, FormatBody, MoveNote, Note, NoteMeta, SaveNote},
 };
 
 const TAG: &str = "notes";
@@ -24,6 +24,7 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(get_note, save_note, delete_note))
         .routes(routes!(move_note))
         .routes(routes!(backlinks))
+        .routes(routes!(format_body))
 }
 
 #[derive(Deserialize, IntoParams)]
@@ -130,4 +131,16 @@ async fn backlinks(
 ) -> Result<Json<Vec<NoteMeta>>, ApiError> {
     let notes = run(&s, move |n| n.backlinks(&id)).await?;
     Ok(Json(notes.into_iter().map(Into::into).collect()))
+}
+
+#[utoipa::path(
+    post, path = "/api/format", tag = TAG, request_body = FormatBody,
+    responses((status = 200, body = FormatBody))
+)]
+async fn format_body(
+    State(s): State<AppState>,
+    Json(req): Json<FormatBody>,
+) -> Result<Json<FormatBody>, ApiError> {
+    let body = run(&s, move |_| Ok(format::markdown(&req.body))).await?;
+    Ok(Json(FormatBody { body }))
 }
