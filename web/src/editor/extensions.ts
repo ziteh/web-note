@@ -1,7 +1,12 @@
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import type { Extension } from "@codemirror/state";
-import { drawSelection, EditorView, keymap } from "@codemirror/view";
+import {
+  drawSelection,
+  EditorView,
+  keymap,
+  lineNumbers,
+} from "@codemirror/view";
 import { codeBackground } from "./codebackground";
 import { imageSupport } from "./image";
 import { codeLanguages } from "./languages";
@@ -18,6 +23,7 @@ interface Options {
 export function createExtensions(options: Options): Extension[] {
   return [
     history(),
+    lineNumbers(),
     drawSelection(),
     EditorView.lineWrapping,
     keymap.of([...defaultKeymap, ...historyKeymap]),
