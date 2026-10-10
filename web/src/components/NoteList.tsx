@@ -16,12 +16,7 @@ import PlusIcon from "~/assets/plus.svg";
 import SortIcon from "~/assets/sort.svg";
 import { useFilters } from "~/lib/filters";
 import { type MessageKey, t } from "~/lib/i18n";
-import {
-  DEFAULT_NOTEBOOK,
-  formatDate,
-  noteTitle,
-  setDeletedId,
-} from "~/lib/note";
+import { formatDate, noteTitle, setDeletedId } from "~/lib/note";
 import { type Sort, setSort, sort, sortNotes } from "~/lib/sort";
 import {
   AlertDialog,
@@ -95,13 +90,13 @@ export default function NoteList(props: Props) {
     ),
   );
 
-  /** New notes start empty, in the current notebook filter if there is one. */
+  /** New notes start empty, in the current notebook. */
   const create = async () => {
     try {
       const created = await unwrap(
         api.POST("/api/notes", {
           body: {
-            notebook: filters().notebook ?? DEFAULT_NOTEBOOK,
+            notebook: filters().notebook,
             body: "",
             tags: [],
           },

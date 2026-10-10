@@ -7,7 +7,6 @@ export default {
   permanentDelete: "Delete permanently",
   notebooks: "Notebooks",
   tags: "Tags",
-  all: "All",
   trash: "Trash",
   toggleTheme: "Toggle theme",
   language: "Language",

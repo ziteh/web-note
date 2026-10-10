@@ -9,7 +9,6 @@ const zhHant: Record<keyof typeof en, string> = {
   permanentDelete: "永久刪除",
   notebooks: "筆記本",
   tags: "標籤",
-  all: "全部",
   trash: "垃圾桶",
   toggleTheme: "切換主題",
   language: "語言",

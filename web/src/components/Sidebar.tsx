@@ -15,6 +15,7 @@ import SunIcon from "~/assets/sun.svg";
 import TrashIcon from "~/assets/trash.svg";
 import { useFilters } from "~/lib/filters";
 import { t } from "~/lib/i18n";
+import { DEFAULT_NOTEBOOK } from "~/lib/note";
 import { isDark, toggleTheme } from "~/lib/theme";
 import {
   AlertDialog,
@@ -119,7 +120,7 @@ export default function Sidebar(props: { onPick?: () => void }) {
       await unwrap(
         api.DELETE("/api/notebooks/{name}", { params: { path: { name } } }),
       );
-      if (filters().notebook === name) update({ notebook: undefined });
+      if (filters().notebook === name) update({ notebook: DEFAULT_NOTEBOOK });
     });
 
   return (
@@ -139,13 +140,6 @@ export default function Sidebar(props: { onPick?: () => void }) {
             <PlusIcon />
           </Button>
         </div>
-        <Button
-          variant={filters().notebook ? "ghost" : "secondary"}
-          class="justify-start"
-          onClick={() => pick({ notebook: undefined })}
-        >
-          {t("all")}
-        </Button>
         <For each={notebooks.data}>
           {(nb) => (
             <ContextMenu>
