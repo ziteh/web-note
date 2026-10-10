@@ -914,6 +914,17 @@
           "title": {
             "type": ["string", "null"]
           },
+          "todo": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Todo",
+                "description": "Present when the note starts with a `TODO:` checklist."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "updated": {
             "type": ["string", "null"]
           }
@@ -1041,6 +1052,22 @@
           },
           "tag": {
             "type": "string"
+          }
+        }
+      },
+      "Todo": {
+        "type": "object",
+        "required": ["done", "total"],
+        "properties": {
+          "done": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
           }
         }
       },

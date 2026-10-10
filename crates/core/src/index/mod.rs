@@ -11,12 +11,12 @@ use crate::{
     parse,
 };
 
-pub use query::{NoteMeta, Query, Snippet, backlinks, get, list};
+pub use query::{NoteMeta, Query, Snippet, Todo, backlinks, get, list};
 pub(crate) use reconcile::stat_of;
 pub use reconcile::{Duplicate, Report, reconcile};
 
 /// Bump when the schema changes; a mismatch drops and recreates all tables.
-const SCHEMA_VERSION: i64 = 1;
+const SCHEMA_VERSION: i64 = 2;
 const SUMMARY_CHARS: usize = 100;
 
 const DROP: &str = "
@@ -34,6 +34,8 @@ CREATE TABLE notes (
     notebook TEXT NOT NULL,
     title TEXT,
     summary TEXT NOT NULL,
+    todo_done INTEGER,
+    todo_total INTEGER,
     created TEXT,
     updated TEXT,
     mtime INTEGER NOT NULL,
@@ -103,12 +105,14 @@ pub fn upsert(
 
     let notebook = rel.split('/').next().unwrap_or_default();
     let title = parse::title(&doc.body);
+    let todo = parse::todo(&doc.body);
     conn.execute(
-        "INSERT INTO notes (id, path, notebook, title, summary, created, updated, mtime, size)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)
+        "INSERT INTO notes (id, path, notebook, title, summary, todo_done, todo_total, created, updated, mtime, size)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)
          ON CONFLICT(id) DO UPDATE SET
              path = excluded.path, notebook = excluded.notebook, title = excluded.title,
-             summary = excluded.summary, created = excluded.created, updated = excluded.updated,
+             summary = excluded.summary, todo_done = excluded.todo_done,
+             todo_total = excluded.todo_total, created = excluded.created, updated = excluded.updated,
              mtime = excluded.mtime, size = excluded.size",
         params![
             id,
@@ -116,6 +120,8 @@ pub fn upsert(
             notebook,
             title,
             summary(&doc.body),
+            todo.map(|t| t.0),
+            todo.map(|t| t.1),
             doc.created.map(format_time).transpose()?,
             doc.updated.map(format_time).transpose()?,
             stat.mtime,

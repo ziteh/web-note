@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use pulldown_cmark::{Event, HeadingLevel, Parser, Tag, TagEnd};
+use pulldown_cmark::{Event, HeadingLevel, Options, Parser, Tag, TagEnd};
 
 use crate::id;
 
@@ -29,6 +29,33 @@ pub fn title(body: &str) -> Option<String> {
         }
     }
     None
+}
+
+/// Checkbox counts of a leading `TODO:` paragraph followed by a task list,
+/// placed before the first H1. `None` when the note is not a todo note.
+pub fn todo(body: &str) -> Option<(u32, u32)> {
+    let mut events = Parser::new_ext(body, Options::ENABLE_TASKLISTS);
+    let is_header = matches!(events.next(), Some(Event::Start(Tag::Paragraph)))
+        && matches!(events.next(), Some(Event::Text(t)) if t.as_ref() == "TODO:")
+        && matches!(events.next(), Some(Event::End(TagEnd::Paragraph)));
+    if !is_header {
+        return None;
+    }
+    let (mut done, mut total) = (0, 0);
+    for event in events {
+        match event {
+            Event::Start(Tag::Heading {
+                level: HeadingLevel::H1,
+                ..
+            }) => break,
+            Event::TaskListMarker(checked) => {
+                total += 1;
+                done += u32::from(checked);
+            }
+            _ => {}
+        }
+    }
+    (total > 0).then_some((done, total))
 }
 
 /// `[[id]]` and `[[id|alias]]` links outside code blocks and inline code.
@@ -114,6 +141,19 @@ mod tests {
             title("# Use `cargo` now\n").as_deref(),
             Some("Use cargo now")
         );
+    }
+
+    #[test]
+    fn todo_counts_checkboxes_before_h1() {
+        let body = "TODO:\n\n- [x] a\n- [ ] b\n\n# Title\n\n- [ ] not counted\n";
+        assert_eq!(todo(body), Some((1, 2)));
+    }
+
+    #[test]
+    fn todo_requires_leading_header_and_items() {
+        assert_eq!(todo("# Title\n\n- [ ] a\n"), None);
+        assert_eq!(todo("intro\n\nTODO:\n\n- [ ] a\n"), None);
+        assert_eq!(todo("TODO:\n\n# Title\n"), None);
     }
 
     #[test]

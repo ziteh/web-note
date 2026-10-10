@@ -58,6 +58,8 @@ const SORT_OPTIONS: SortOption[] = [
   { key: "title", desc: true, labelKey: "sortTitleDesc" },
 ];
 
+const isDone = (note: NoteMeta) => note.todo?.done === note.todo?.total;
+
 interface Props {
   selectedId?: string;
   onOpenSidebar?: () => void;
@@ -76,6 +78,7 @@ export default function NoteList(props: Props) {
     id: string;
     backlinks: number;
   }>();
+  const [showDone, setShowDone] = createSignal(false);
   const [query, setQuery] = createSignal(filters().q ?? "");
 
   createEffect(
@@ -163,6 +166,10 @@ export default function NoteList(props: Props) {
   };
 
   const sorted = () => sortNotes(notes.data ?? [], sort());
+  const todos = () => sorted().filter((n) => n.todo);
+  const openTodos = () => todos().filter((n) => !isDone(n));
+  const doneTodos = () => todos().filter(isDone);
+  const plain = () => sorted().filter((n) => !n.todo);
   const selectedSort = () =>
     SORT_OPTIONS.find((o) => o.key === sort().key && o.desc === sort().desc);
 
@@ -236,7 +243,44 @@ export default function NoteList(props: Props) {
             </li>
           )}
         </For>
-        <For each={sorted()}>
+        <For each={openTodos()}>
+          {(note) => (
+            <NoteRow
+              note={note}
+              selected={note.id === props.selectedId}
+              onSelect={props.onSelect}
+              onMove={move}
+              onDelete={requestDelete}
+            />
+          )}
+        </For>
+        <Show when={doneTodos().length > 0}>
+          <li class="border-b">
+            <button
+              type="button"
+              class="w-full p-2 text-left text-sm text-muted-foreground hover:bg-accent"
+              aria-expanded={showDone()}
+              onClick={() => setShowDone(!showDone())}
+            >
+              {showDone() ? "▾" : "▸"}{" "}
+              {t("completedTodos", { count: doneTodos().length })}
+            </button>
+          </li>
+          <Show when={showDone()}>
+            <For each={doneTodos()}>
+              {(note) => (
+                <NoteRow
+                  note={note}
+                  selected={note.id === props.selectedId}
+                  onSelect={props.onSelect}
+                  onMove={move}
+                  onDelete={requestDelete}
+                />
+              )}
+            </For>
+          </Show>
+        </Show>
+        <For each={plain()}>
           {(note) => (
             <NoteRow
               note={note}
@@ -307,21 +351,40 @@ function NoteRow(props: {
               props.onSelect(props.note.id);
             }
           }}
-          class="block p-3 hover:bg-accent"
-          classList={{ "bg-accent": props.selected }}
+          class="block hover:bg-accent"
+          classList={{
+            "bg-accent": props.selected,
+            "p-3": !props.note.todo,
+            "px-3 py-1.5": !!props.note.todo,
+          }}
         >
-          <div class="truncate font-medium">{noteTitle(props.note)}</div>
-          <div class="line-clamp-2 text-sm text-muted-foreground">
-            <Show when={props.note.snippet} fallback={props.note.summary}>
-              {(s) => (
-                <Snippet text={s().text} start={s().start} end={s().end} />
-              )}
+          <div class="flex items-center gap-2 font-medium">
+            <Show when={props.note.todo}>
+              <input
+                type="checkbox"
+                class="pointer-events-none shrink-0"
+                checked={isDone(props.note)}
+                tabindex={-1}
+                readOnly
+              />
             </Show>
+            <span class="truncate">{noteTitle(props.note)}</span>
           </div>
+          <Show when={!props.note.todo}>
+            <div class="line-clamp-2 text-sm text-muted-foreground">
+              <Show when={props.note.snippet} fallback={props.note.summary}>
+                {(s) => (
+                  <Snippet text={s().text} start={s().start} end={s().end} />
+                )}
+              </Show>
+            </div>
+          </Show>
           <div class="mt-1 flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
-            <span>{props.note.notebook}</span>
-            <span>·</span>
-            <span>{formatDate(props.note.updated)}</span>
+            <Show when={!props.note.todo}>
+              <span>{props.note.notebook}</span>
+              <span>·</span>
+              <span>{formatDate(props.note.updated)}</span>
+            </Show>
             <For each={props.note.tags}>
               {(tag) => <Badge variant="secondary">{tag}</Badge>}
             </For>

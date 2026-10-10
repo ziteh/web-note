@@ -28,7 +28,14 @@ pub struct NoteMeta {
     pub tags: Vec<String>,
     pub created: Option<String>,
     pub updated: Option<String>,
+    pub todo: Option<Todo>,
     pub snippet: Option<Snippet>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Todo {
+    pub done: u32,
+    pub total: u32,
 }
 
 /// `start..end` are character offsets of the match within `text`.
@@ -105,7 +112,8 @@ fn fetch(
     params: Vec<String>,
 ) -> Result<Vec<(i64, NoteMeta)>> {
     let mut sql = String::from(
-        "SELECT n.rowid, n.id, n.path, n.notebook, n.title, n.summary, n.created, n.updated
+        "SELECT n.rowid, n.id, n.path, n.notebook, n.title, n.summary, n.created, n.updated,
+                n.todo_done, n.todo_total
          FROM notes n",
     );
     if !clauses.is_empty() {
@@ -129,6 +137,10 @@ fn fetch(
                     summary: r.get(5)?,
                     created: r.get(6)?,
                     updated: r.get(7)?,
+                    todo: r
+                        .get::<_, Option<u32>>(8)?
+                        .zip(r.get::<_, Option<u32>>(9)?)
+                        .map(|(done, total)| Todo { done, total }),
                     snippet: None,
                 },
             ))

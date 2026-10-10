@@ -11,6 +11,12 @@ pub struct Snippet {
 }
 
 #[derive(Serialize, ToSchema)]
+pub struct Todo {
+    pub done: u32,
+    pub total: u32,
+}
+
+#[derive(Serialize, ToSchema)]
 pub struct NoteMeta {
     pub id: String,
     pub path: String,
@@ -20,6 +26,8 @@ pub struct NoteMeta {
     pub tags: Vec<String>,
     pub created: Option<String>,
     pub updated: Option<String>,
+    /// Present when the note starts with a `TODO:` checklist.
+    pub todo: Option<Todo>,
     pub snippet: Option<Snippet>,
 }
 
@@ -34,6 +42,10 @@ impl From<core::index::NoteMeta> for NoteMeta {
             tags: m.tags,
             created: m.created,
             updated: m.updated,
+            todo: m.todo.map(|t| Todo {
+                done: t.done,
+                total: t.total,
+            }),
             snippet: m.snippet.map(|s| Snippet {
                 text: s.text,
                 start: s.start,

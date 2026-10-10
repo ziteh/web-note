@@ -29,6 +29,7 @@ export default {
   duplicateIds: "Duplicate note ids found; newer files were assigned new ids",
   dismiss: "Got it",
   noMatches: "No matching notes",
+  completedTodos: "Completed ({count})",
   deleteNote: "Delete note",
   deleteNoteConfirm:
     "{count} notes link to this note; those links will break after deletion. Deleted notes are moved to the trash.",

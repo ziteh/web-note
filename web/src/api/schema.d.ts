@@ -360,6 +360,7 @@ export interface components {
             summary: string;
             tags: string[];
             title?: string | null;
+            todo?: components["schemas"]["Todo"] | null;
             updated?: string | null;
         };
         Notebook: {
@@ -401,6 +402,12 @@ export interface components {
             /** Format: int64 */
             count: number;
             tag: string;
+        };
+        Todo: {
+            /** Format: int32 */
+            done: number;
+            /** Format: int32 */
+            total: number;
         };
         TrashItem: {
             id?: string | null;

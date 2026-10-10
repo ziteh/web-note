@@ -31,6 +31,7 @@ const zhHant: Record<keyof typeof en, string> = {
   duplicateIds: "發現重複的筆記 id，已為較新的檔案重新指派",
   dismiss: "知道了",
   noMatches: "沒有符合的筆記",
+  completedTodos: "已完成（{count}）",
   deleteNote: "刪除筆記",
   deleteNoteConfirm:
     "有 {count} 則筆記連結到這則筆記，刪除後那些連結會變成失效連結。刪除的筆記會移到垃圾桶。",
